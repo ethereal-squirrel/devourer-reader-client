@@ -1,0 +1,103 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-internal-toggle-maximize",
+    "opener:default",
+    "sql:default",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "fs:default",
+    "dialog:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-app-read-recursive",
+      "allow": [
+        {
+          "path": "$APPLOCALDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-app-write-recursive",
+      "allow": [
+        {
+          "path": "$APPLOCALDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-app-read-recursive",
+      "allow": [
+        {
+          "path": "$APPCACHEDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-app-write-recursive",
+      "allow": [
+        {
+          "path": "$APPCACHEDATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "opener:allow-open-path",
+      "allow": [
+        {
+          "path": "http://localhost:3000/oauth/dropbox"
+        },
+        {
+          "path": "http://localhost:3000/oauth/google"
+        },
+        {
+          "path": "https://devourer.app/oauth/dropbox"
+        },
+        {
+          "path": "https://devourer.app/oauth/google"
+        },
+        {
+          "path": "https://devourer.app/support"
+        }
+      ]
+    },
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "http://localhost:3000/oauth/dropbox"
+        },
+        {
+          "url": "http://localhost:3000/oauth/google"
+        },
+        {
+          "url": "https://devourer.app/oauth/dropbox"
+        },
+        {
+          "url": "https://devourer.app/oauth/google"
+        },
+        {
+          "url": "https://devourer.app/support"
+        }
+      ]
+    },
+    "store:default",
+    "deep-link:default"
+  ]
+}

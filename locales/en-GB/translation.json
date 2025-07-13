@@ -1,0 +1,177 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "goBack": "Go Back",
+    "import": "Import",
+    "read": "Read",
+    "connectToServer": "Connect to Server",
+    "manga": "Manga / Comic",
+    "book": "Book",
+    "loading": "Loading...",
+    "addedToQueue": "Added to queue...",
+    "importSeriesConfirmation": "Are you sure you want to import this series?",
+    "error": "An error occurred. Please try again.",
+    "connecting": "Connecting...",
+    "serverUrl": "Enter server URL...",
+    "readNow": "Read now",
+    "makeAvailableOffline": "Add to local library",
+    "makeUnavailableOffline": "Remove from local library",
+    "editMetadata": "Edit metadata",
+    "returnToLibrary": "Return to library",
+    "addToCollection": "Add to collection",
+    "removeFromCollection": "Remove from collection",
+    "searchForMetadata": "Search for metadata",
+    "saveChanges": "Save changes",
+    "returnToBook": "Return to book",
+    "returnToManga": "Return to manga",
+    "collection": "Collection",
+    "selectCollection": "Select a collection...",
+    "addToCollectionSuccess": "Added to collection successfully.",
+    "addToCollectionError": "Failed to add to collection.",
+    "deleteCollection": "Delete collection",
+    "searchJikanMetadata": "Search MyAnimeList"
+  },
+  "server": {
+    "error": "Failed to connect to server. Please check your server URL and try again."
+  },
+  "collection": {
+    "deleteCollection": "Delete collection",
+    "collectionDeleted": "Collection deleted.",
+    "collectionDeleteError": "Failed to delete collection.",
+    "deleteCollectionConfirmation": "Are you sure you want to delete this collection?"
+  },
+  "libraries": {
+    "local": "Local libraries",
+    "remote": "Remote libraries",
+    "pleaseConnect": "Please connect to a remote server in order to enable remote libraries.",
+    "createRemoteLibrary": "Create remote library",
+    "editRemoteLibrary": "Edit remote library",
+    "name": "Name",
+    "path": "Path",
+    "type": "Type",
+    "metadataProvider": "Metadata provider",
+    "metadataApiKey": "Metadata API key",
+    "createLibrary": "Create library",
+    "editLibrary": "Edit library",
+    "deleteLibrary": "Delete library",
+    "openLocalFile": "Open local file",
+    "createErrorName": "Please enter a library name.",
+    "createErrorPath": "Please enter a path to the library.",
+    "general": "Libraries",
+    "viewOfflineBooks": "View offline books",
+    "viewOfflineManga": "View offline manga & comics",
+    "editPathInfo": "Only edit this path if you have moved or renamed the folder, as it relies on the existing structure."
+  },
+  "library": {
+    "scan": "Scan library",
+    "scanInProgress": "Scan in progress...",
+    "collections": "Collections",
+    "createCollection": "Create collection",
+    "collectionValidation": "Please enter a collection title.",
+    "noCollections": "No collections found in this library.",
+    "files": "Files",
+    "noFiles": "No files found in this library.",
+    "tableHeaders": {
+      "title": "Title",
+      "authors": "Authors",
+      "genres": "Genres",
+      "publishers": "Publishers",
+      "publishDate": "Publish Date"
+    },
+    "viewMode": {
+      "grid": "Grid",
+      "table": "Table"
+    }
+  },
+  "series": {
+    "readMore": "Read more",
+    "readLess": "Read less",
+    "makeAvailableOffline": "Make available offline",
+    "makeUnavailableOffline": "Make unavailable offline",
+    "editMetadata": "Edit metadata",
+    "authors": "Authors",
+    "genres": "Genres",
+    "subjects": "Subjects",
+    "downloadBook": "Download book",
+    "markAsRead": "Mark as read",
+    "markAsUnread": "Mark as unread",
+    "markedAsRead": "Marked as read",
+    "read": "Read",
+    "unread": "Unread",
+    "markedAsUnread": "Marked as unread",
+    "metadataSaved": "Metadata successfully updated.",
+    "themes": "Themes",
+    "removeFromLocalConfirmation": "Are you sure you want to remove this series from local storage?",
+    "removeFileFromLocalConfirmation": "Are you sure you want to remove this file from local storage?",
+    "addToLocalConfirmation": "Are you sure you want to add this file to local storage?",
+    "publishedFrom": "Published from",
+    "publishedTo": "Published to",
+    "volumes": "Total volumes",
+    "chapters": "Total chapters",
+    "readNow": "Read now"
+  },
+  "login": {
+    "title": "Log in required",
+    "description": "This server requires your username and password to access.",
+    "username": "Username",
+    "password": "Password",
+    "login": "Log in"
+  },
+  "book": {
+    "readNow": "Read now",
+    "publisher": "Publisher",
+    "published": "Published",
+    "pages": "Pages",
+    "description": "Description",
+    "authors": "Authors",
+    "genres": "Genres",
+    "subjects": "Subjects",
+    "isbn": "ISBN",
+    "bookNotFound": "Book not found.",
+    "errorLoadingBook": "Error loading book."
+  },
+  "read": {
+    "jumpTo": "Jump to:",
+    "page": "Page",
+    "of": "of"
+  },
+  "providers": {
+    "oauthValidity": "Validating token...",
+    "read": "Read",
+    "retrievingFile": "Retrieving file...",
+    "retrievingFiles": "Retrieving files..."
+  },
+  "settings": {
+    "bookSettings": {
+      "title": "Book settings",
+      "defaultTheme": "Default theme",
+      "customBackground": "Custom background",
+      "customForeground": "Custom text color",
+      "fontSize": "Font size"
+    },
+    "mangaSettings": {
+      "title": "Manga & comics settings",
+      "readingDirection": "Reading direction",
+      "pageFitMode": "Page fit mode",
+      "viewMode": "View mode",
+      "single": "Single",
+      "double": "Double",
+      "contain": "Contain",
+      "actual": "Actual"
+    },
+    "opdsSettings": {
+      "title": "OPDS settings",
+      "savedOpdsUrl": "Saved OPDS URL",
+      "booksPerPage": "Books per page"
+    }
+  },
+  "tabBar": {
+    "home": "Home",
+    "libraries": "Libraries",
+    "settings": "Settings"
+  },
+  "toast": {
+    "librariesRefreshed": "Libraries refreshed."
+  }
+}

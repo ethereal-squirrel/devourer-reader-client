@@ -1,0 +1,75 @@
+/* Performance optimizations for virtualized components */
+
+/* Contain layout changes to improve scroll performance */
+.virtual-container {
+  contain: strict;
+  will-change: scroll-position;
+  transform: translateZ(0); /* Force hardware acceleration */
+}
+
+.virtual-item {
+  contain: layout style paint;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Optimize image rendering */
+.virtual-image {
+  will-change: auto;
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+}
+
+/* Reduce repaints during scroll */
+.virtual-text {
+  contain: layout style;
+  will-change: auto;
+}
+
+/* Grid optimizations */
+.virtual-grid-row {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* Table optimizations */
+.virtual-table-row {
+  contain: layout style paint;
+  will-change: transform;
+  transition: none; /* Disable transitions during virtualization */
+}
+
+/* Scroll optimizations */
+.scroll-container {
+  scroll-behavior: auto; /* Disable smooth scrolling for performance */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Scrollbars visible for virtualized containers - removed hide rule */
+
+/* Document-level scrolling optimizations */
+html.virtualized-scrolling {
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+
+/* Prevent text selection during scroll for better performance */
+.virtual-container * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Re-enable text selection for interactive elements */
+.virtual-container button,
+.virtual-container a,
+.virtual-container input {
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+}
