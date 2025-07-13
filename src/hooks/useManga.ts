@@ -54,10 +54,9 @@ export function useManga() {
       server: state.server,
     }))
   );
-  const { libraryData, filesData, setFilesData } = useLibraryStore(
+  const { libraryData, setFilesData } = useLibraryStore(
     useShallow((state) => ({
       libraryData: state.libraryData as unknown as Library,
-      filesData: state.filesData,
       setFilesData: state.setFilesData,
     }))
   );

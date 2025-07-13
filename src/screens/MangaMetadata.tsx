@@ -34,9 +34,7 @@ export default function MangaMetadata() {
     }))
   );
 
-  const [displayComicVineModal, setDisplayComicVineModal] = useState(false);
   const [displayJikanModal, setDisplayJikanModal] = useState(false);
-  const [displayMetronModal, setDisplayMetronModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<any>({} as any);
 

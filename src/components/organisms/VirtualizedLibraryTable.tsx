@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 import { Book } from "../../hooks/useBook";
-import { Library, useLibrary } from "../../hooks/useLibrary";
+import { Library } from "../../hooks/useLibrary";
 import { Series } from "../../hooks/useManga";
 import { useShallow } from "zustand/react/shallow";
 import { useLibraryStore } from "../../store/library";

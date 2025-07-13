@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { convertFileSrc } from "@tauri-apps/api/core";
 import { useNavigate } from "react-router";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useShallow } from "zustand/react/shallow";
