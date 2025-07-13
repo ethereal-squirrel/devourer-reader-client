@@ -2,6 +2,11 @@ name: 'publish'
 
 on:
   workflow_dispatch:
+    inputs:
+        version:
+          description: 'Version number'
+          required: true
+          type: string
 
 jobs:
   publish-tauri:
@@ -47,8 +52,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'App v__VERSION__'
+          tagName: app-v${{ inputs.version }}
+          releaseName: 'App v${{ inputs.version }}'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
