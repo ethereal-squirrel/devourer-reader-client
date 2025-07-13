@@ -26,6 +26,7 @@ A client designed to help manage and read your books, manga and comics.
 ### Manual Install
 
 - Ensure you have Node.js installed.
+- Ensure you have Rust installed.
 - Clone this repository and cd into the folder.
 - Install Dependencies: npm i
 - To Run: npm run tauri dev
