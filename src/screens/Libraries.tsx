@@ -144,7 +144,7 @@ export default function LibrariesScreen() {
     <>
       <div className="h-screen flex flex-col bg-secondary">
         <Container className="flex-1 px-5 pb-24 pt-12">
-          <div className="flex flex-col md:flex-row gap-2 mb-5">
+          <div className="flex flex-col md:flex-row gap-2 mb-5 mt-[1rem] md:mt-0">
             {isMobile && <LocalLibraries />}
             <Button
               className="ml-auto mr-0 rounded-full w-full md:w-auto px-2 py-1"
