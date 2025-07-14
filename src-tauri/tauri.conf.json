@@ -32,9 +32,9 @@
         "scope": ["**"]
       },
       "csp": {
-        "default-src": "'self' ipc: http://ipc.localhost tauri:",
-        "img-src": "'self' asset: http://asset.localhost tauri: *",
-        "connect-src": "ipc: http://ipc.localhost asset: http://asset.localhost *",
+        "default-src": "'self' ipc: http://ipc.localhost tauri://localhost",
+        "img-src": "'self' asset: http://asset.localhost tauri://localhost *",
+        "connect-src": "ipc: http://ipc.localhost asset: tauri://localhost http://asset.localhost *",
         "script-src": "'self' 'unsafe-inline' 'unsafe-eval' *"
       }
     }
