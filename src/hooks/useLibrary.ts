@@ -100,7 +100,6 @@ export function useLibrary() {
         toPathBaseDir: BaseDirectory.AppLocalData,
       });
 
-      console.log("pathToFile", pathToFile);
       const url = `/book/0/read?opdsType=${
         fileExtension === "pdf" ? "opds-pdf" : "opds-epub"
       }&opdsUrl=local:${pathToFile}`;
@@ -117,7 +116,6 @@ export function useLibrary() {
         toPathBaseDir: BaseDirectory.AppLocalData,
       });
 
-      console.log("pathToFile", pathToFile);
       const url = `/manga/0/read?directOpen=true&directFile=${pathToFile}`;
 
       navigate(url);
