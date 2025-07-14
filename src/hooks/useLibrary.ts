@@ -67,12 +67,8 @@ export function useLibrary() {
       directory: false,
       filters: [
         {
-          name: "Comic & Manga Files",
-          extensions: ["cbz", "zip", "cbr", "rar"],
-        },
-        {
-          name: "Book Files",
-          extensions: ["epub", "pdf"],
+          name: "Accepted Files",
+          extensions: ["epub", "pdf", "cbz", "zip", "cbr", "rar"],
         },
       ],
     });

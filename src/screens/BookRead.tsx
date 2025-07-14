@@ -521,7 +521,7 @@ export default function BookReadScreen() {
     });
 
     await new Promise((resolve) => setTimeout(resolve, 50));
-    navigate(-1);
+    navigate("/");
   };
 
   useEffect(() => {

@@ -85,56 +85,25 @@ export default function MangaReadScreen() {
     navigate(url, { replace: true, state: { key: Date.now() } });
   };
 
-  const getManga = useCallback(async (nextId?: number) => {
-    if (!id) {
-      return null;
-    }
-
-    if (isLoading.current) {
-      return;
-    }
-
-    isLoading.current = true;
-
-    let mangaEntity: File | null = null;
-
-    if (isLocal) {
-      mangaEntity = await retrieveLocalFile(
-        nextId || Number(id),
-        localServer || ""
-      );
-
-      if (
-        (mangaEntity as any).current_page &&
-        (mangaEntity as any).current_page !== 0
-      ) {
-        setPage(Number((mangaEntity as any).current_page));
+  const getManga = useCallback(
+    async (nextId?: number) => {
+      if (!id) {
+        return null;
       }
 
-      if (!mangaEntity) {
-        throwLoadError("Manga not found.");
-        return false;
+      if (isLoading.current) {
+        return;
       }
 
-      setManga(mangaEntity);
-      await extractLocalManga(mangaEntity, localServer || "");
-    } else {
-      if (directOpen && directFile) {
-        if (directFile.endsWith(".zip") || directFile.endsWith(".cbz")) {
-          await unzipManga(directFile, "zip");
-        } else if (directFile.endsWith(".rar") || directFile.endsWith(".cbr")) {
-          await unzipManga(directFile, "rar");
-        }
-      } else {
-        mangaEntity = await retrieveFile(nextId || Number(id));
-        console.log("Manga Entity", mangaEntity);
+      isLoading.current = true;
 
-        if (!mangaEntity) {
-          throwLoadError("Manga not found.");
-          return false;
-        }
+      let mangaEntity: File | null = null;
 
-        setManga(mangaEntity);
+      if (isLocal) {
+        mangaEntity = await retrieveLocalFile(
+          nextId || Number(id),
+          localServer || ""
+        );
 
         if (
           (mangaEntity as any).current_page &&
@@ -143,20 +112,57 @@ export default function MangaReadScreen() {
           setPage(Number((mangaEntity as any).current_page));
         }
 
-        await downloadManga(mangaEntity, server);
+        if (!mangaEntity) {
+          throwLoadError("Manga not found.");
+          return false;
+        }
+
+        setManga(mangaEntity);
+        await extractLocalManga(mangaEntity, localServer || "");
+      } else {
+        if (directOpen && directFile) {
+          if (directFile.endsWith(".zip") || directFile.endsWith(".cbz")) {
+            await unzipManga(directFile, "zip");
+          } else if (
+            directFile.endsWith(".rar") ||
+            directFile.endsWith(".cbr")
+          ) {
+            await unzipManga(directFile, "rar");
+          }
+        } else {
+          mangaEntity = await retrieveFile(nextId || Number(id));
+          console.log("Manga Entity", mangaEntity);
+
+          if (!mangaEntity) {
+            throwLoadError("Manga not found.");
+            return false;
+          }
+
+          setManga(mangaEntity);
+
+          if (
+            (mangaEntity as any).current_page &&
+            (mangaEntity as any).current_page !== 0
+          ) {
+            setPage(Number((mangaEntity as any).current_page));
+          }
+
+          await downloadManga(mangaEntity, server);
+        }
       }
-    }
-  }, [
-    id,
-    isLocal,
-    localServer,
-    directOpen,
-    directFile,
-    retrieveLocalFile,
-    retrieveFile,
-    server,
-    libraryData,
-  ]);
+    },
+    [
+      id,
+      isLocal,
+      localServer,
+      directOpen,
+      directFile,
+      retrieveLocalFile,
+      retrieveFile,
+      server,
+      libraryData,
+    ]
+  );
 
   const extractLocalManga = async (manga: File, server: string) => {
     const safeServer = server.replace(/[/:?&]/g, "_") || "";
@@ -411,7 +417,9 @@ export default function MangaReadScreen() {
         color: "#fff",
       },
     });
-    console.error("Error loading manga:", message);
+
+    console.error("Error loading file, please try again.");
+    navigate("/");
   };
 
   useEffect(() => {

@@ -64,6 +64,7 @@ export default function MangaMetadata() {
             <div className="mt-[1rem]">
               <div className="flex flex-col md:flex-row md:justify-between items-center mb-[1rem] gap-3">
                 <Button
+                  className="w-full md:w-auto"
                   onPress={() => {
                     if (isLocal) {
                       navigate(
@@ -78,6 +79,7 @@ export default function MangaMetadata() {
                   {t("common.returnToManga")}
                 </Button>
                 <Button
+                  className="w-full md:w-auto"
                   onPress={() => {
                     setDisplayJikanModal(true);
                   }}
@@ -229,7 +231,7 @@ export default function MangaMetadata() {
                   />
                 </div>
               </div>
-              <div className="mt-[1rem]">
+              <div className="mt-[1rem] mb-[3rem]">
                 <Button
                   onPress={async () => {
                     if (loading) {
@@ -253,7 +255,7 @@ export default function MangaMetadata() {
                     setLoading(false);
                   }}
                   disabled={loading}
-                  className="md:w-full md:text-lg"
+                  className="w-full md:text-lg"
                 >
                   {t("common.saveChanges")}
                 </Button>
