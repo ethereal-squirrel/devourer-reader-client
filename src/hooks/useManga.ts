@@ -72,7 +72,6 @@ export function useManga() {
 
   const isFileAvailableOffline = useCallback(
     async (fileId: number) => {
-      console.log("isFileAvailableOffline", fileId, server);
       const file = await retrieveLocalFile(fileId, server || "");
       return file !== null;
     },
@@ -200,8 +199,6 @@ export function useManga() {
           "SELECT * FROM MangaFile WHERE series_id = ? AND server = ?",
           [seriesId, server]
         );
-
-        console.log("existingFileData", existingFileData);
 
         setFilesData(existingFileData as File[]);
         setSeries(mangaData as Series);

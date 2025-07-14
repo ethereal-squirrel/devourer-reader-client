@@ -16,7 +16,17 @@
     "sql:allow-execute",
     "sql:allow-select",
     "fs:default",
+    "fs:allow-document-read-recursive",
+    "fs:allow-download-read-recursive",
     "dialog:default",
+    {
+      "identifier": "dialog:allow-open",
+      "allow": [
+        {
+          "path": "**/*"
+        }
+      ]
+    },
     {
       "identifier": "http:default",
       "allow": [

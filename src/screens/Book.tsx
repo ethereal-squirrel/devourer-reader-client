@@ -85,7 +85,7 @@ export default function BookScreen() {
                 </div>
                 <div className="w-full md:col-span-3">
                   <BookDescription book={book} />
-                  <div className="mb-[1rem]">
+                  <div className="mb-[3rem]">
                     <Button
                       onPress={() => {
                         navigate(

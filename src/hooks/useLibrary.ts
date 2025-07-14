@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { open } from "@tauri-apps/plugin-dialog";
+import { copyFile, BaseDirectory } from "@tauri-apps/plugin-fs";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "react-toastify";
 
@@ -10,6 +11,7 @@ import { useRequest } from "./useRequest";
 import { db } from "../lib/database";
 import { useCommonStore } from "../store/common";
 import { useLibraryStore } from "../store/library";
+import { appLocalDataDir, join } from "@tauri-apps/api/path";
 
 export interface Library {
   id: number;
@@ -65,16 +67,6 @@ export function useLibrary() {
     const file = await open({
       multiple: false,
       directory: false,
-      filters: [
-        {
-          name: "Comic & Manga Files",
-          extensions: ["cbz", "zip", "cbr", "rar"],
-        },
-        {
-          name: "Book Files",
-          extensions: ["epub", "pdf"],
-        },
-      ],
     });
 
     if (!file) {
@@ -93,14 +85,38 @@ export function useLibrary() {
       });
     }
 
+    const localDataDir = await appLocalDataDir();
+
+    let pathToFile: string | null = null;
+
     if (["epub", "pdf"].includes(fileExtension as string)) {
+      pathToFile = await join(
+        localDataDir,
+        String(BaseDirectory.AppLocalData),
+        `local.${fileExtension}`
+      );
+
+      await copyFile(file, pathToFile, {
+        toPathBaseDir: BaseDirectory.AppLocalData,
+      });
+
       const url = `/book/0/read?opdsType=${
         fileExtension === "pdf" ? "opds-pdf" : "opds-epub"
-      }&opdsUrl=local:${file}`;
+      }&opdsUrl=local:${pathToFile}`;
 
       navigate(url);
     } else if (["cbz", "zip", "cbr", "rar"].includes(fileExtension as string)) {
-      const url = `/manga/0/read?directOpen=true&directFile=${file}`;
+      pathToFile = await join(
+        localDataDir,
+        String(BaseDirectory.AppLocalData),
+        `local.${fileExtension}`
+      );
+
+      await copyFile(file, pathToFile, {
+        toPathBaseDir: BaseDirectory.AppLocalData,
+      });
+
+      const url = `/manga/0/read?directOpen=true&directFile=${pathToFile}`;
 
       navigate(url);
     } else {
