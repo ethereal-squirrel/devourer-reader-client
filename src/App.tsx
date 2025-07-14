@@ -97,8 +97,7 @@ function App() {
       .getElementById("titlebar-close")
       ?.addEventListener("click", () => appWindow.close());
 
-    {
-      /*const handleContextMenu = (e: Event) => {
+    const handleContextMenu = (e: Event) => {
       e.preventDefault();
       return false;
     };
@@ -107,8 +106,7 @@ function App() {
 
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
-    };*/
-    }
+    };
   }, []);
 
   return (
