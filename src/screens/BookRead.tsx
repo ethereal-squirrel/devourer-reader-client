@@ -612,7 +612,12 @@ export default function BookReadScreen() {
       <div
         className="mt-[30px] h-[50px] flex items-center justify-between px-3"
         style={{
-          backgroundColor: bookCustomBackground,
+          backgroundColor:
+            bookTheme === "dark"
+              ? "#000"
+              : bookTheme === "light"
+              ? "#fff"
+              : bookCustomBackground,
         }}
       >
         <div>
