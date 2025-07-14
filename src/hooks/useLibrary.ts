@@ -93,7 +93,7 @@ export function useLibrary() {
       pathToFile = await join(
         localDataDir,
         String(BaseDirectory.AppLocalData),
-        "current.epub"
+        `local.${fileExtension}`
       );
 
       await copyFile(file, pathToFile, {
@@ -110,7 +110,7 @@ export function useLibrary() {
       pathToFile = await join(
         localDataDir,
         String(BaseDirectory.AppLocalData),
-        `current.${fileExtension}`
+        `local.${fileExtension}`
       );
 
       await copyFile(file, pathToFile, {
