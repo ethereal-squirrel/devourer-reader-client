@@ -14,6 +14,8 @@ A client designed to help manage and read your books, manga and comics.
 
 - Supports .zip, .cbz, .rar and .cbr archives. More formats to follow shortly (such as folders of images and 7zip).
 
+Note: .rar and .cbr files are currently unsupported on Android builds.
+
 ### Book Features
 
 - Supports EPUB and PDF currently. More formats to follow shortly.

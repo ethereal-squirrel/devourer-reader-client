@@ -7,6 +7,7 @@ import { Library } from "../../../hooks/useLibrary";
 import { File, Series, useManga } from "../../../hooks/useManga";
 import { useLibraryStore } from "../../../store/library";
 import { FolderArrowDownIcon, FolderPlusIcon } from "@heroicons/react/24/solid";
+import { toast } from "react-toastify";
 
 const FileCard = memo(
   function FileCard({
@@ -115,7 +116,23 @@ const FileCard = memo(
     return (
       <button
         className="bg-primary text-white rounded-xl flex flex-col hover:cursor-pointer h-full transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500"
-        onClick={handleClick}
+        onClick={() => {
+          if (
+            import.meta.env.VITE_PUBLIC_IS_ANDROID === "1" &&
+            (entity.file_name.endsWith(".rar") ||
+              entity.file_name.endsWith(".cbr"))
+          ) {
+            toast.error("RAR files are not supported on Android.", {
+              style: {
+                backgroundColor: "#111827",
+                color: "#fff",
+              },
+              position: "bottom-right",
+            });
+          } else {
+            handleClick();
+          }
+        }}
         style={{
           contain: "layout style paint",
         }}
