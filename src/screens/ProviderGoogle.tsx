@@ -302,7 +302,13 @@ export default function ProviderGoogle() {
         );
 
         if (!accessTokenRow?.value || !refreshTokenRow?.value) {
-          await openPath("https://devourer.app/oauth/google");
+          await openPath(
+            `https://devourer.app/oauth/google${
+              import.meta.env.VITE_PUBLIC_CUSTOM_TITLE === "false"
+                ? "?mobile=true"
+                : "?desktop=true"
+            }`
+          );
           return;
         }
 
@@ -320,11 +326,23 @@ export default function ProviderGoogle() {
           }
           await retrieveFiles(validToken);
         } else {
-          await openPath("https://devourer.app/oauth/google");
+          await openPath(
+            `https://devourer.app/oauth/google${
+              import.meta.env.VITE_PUBLIC_CUSTOM_TITLE === "false"
+                ? "?mobile=true"
+                : "?desktop=true"
+            }`
+          );
         }
       } catch (error) {
-        console.error("Init failed:", error);
-        setError(t("server.error"));
+        await openPath(
+          `https://devourer.app/oauth/google${
+            import.meta.env.VITE_PUBLIC_CUSTOM_TITLE === "false"
+              ? "?mobile=true"
+              : "?desktop=true"
+          }`
+        );
+        return;
       }
     };
 

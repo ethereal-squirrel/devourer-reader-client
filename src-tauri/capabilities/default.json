@@ -71,16 +71,22 @@
       "identifier": "opener:allow-open-path",
       "allow": [
         {
-          "path": "http://localhost:3000/oauth/dropbox"
-        },
-        {
-          "path": "http://localhost:3000/oauth/google"
-        },
-        {
           "path": "https://devourer.app/oauth/dropbox"
         },
         {
+          "path": "https://devourer.app/oauth/dropbox?mobile=true"
+        },
+        {
+          "path": "https://devourer.app/oauth/dropbox?desktop=true"
+        },
+        {
           "path": "https://devourer.app/oauth/google"
+        },
+        {
+          "path": "https://devourer.app/oauth/google?mobile=true"
+        },
+        {
+          "path": "https://devourer.app/oauth/google?desktop=true"
         },
         {
           "path": "https://devourer.app/support"
@@ -91,16 +97,22 @@
       "identifier": "opener:allow-open-url",
       "allow": [
         {
-          "url": "http://localhost:3000/oauth/dropbox"
-        },
-        {
-          "url": "http://localhost:3000/oauth/google"
-        },
-        {
           "url": "https://devourer.app/oauth/dropbox"
         },
         {
+          "url": "https://devourer.app/oauth/dropbox?mobile=true"
+        },
+        {
+          "url": "https://devourer.app/oauth/dropbox?desktop=true"
+        },
+        {
           "url": "https://devourer.app/oauth/google"
+        },
+        {
+          "url": "https://devourer.app/oauth/google?mobile=true"
+        },
+        {
+          "url": "https://devourer.app/oauth/google?desktop=true"
         },
         {
           "url": "https://devourer.app/support"

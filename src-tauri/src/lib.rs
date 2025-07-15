@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::Path;
 use tauri_plugin_http::reqwest::Client;
 use tauri_plugin_sql::{Migration, MigrationKind};
+#[cfg(not(target_os = "android"))]
 use unrar::Archive as UnrarArchive;
 use zip::ZipArchive;
 
@@ -84,6 +85,7 @@ async fn unzip_file(path: &str, destination: &str) -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(not(target_os = "android"))]
 #[tauri::command]
 async fn unrar_file(path: &str, destination: &str) -> Result<(), String> {
     println!("path: {}", path);
@@ -112,6 +114,12 @@ async fn unrar_file(path: &str, destination: &str) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+#[cfg(target_os = "android")]
+#[tauri::command]
+async fn unrar_file(_path: &str, _destination: &str) -> Result<(), String> {
+    Err("RAR extraction not supported on Android".to_string())
 }
 
 #[tauri::command]
@@ -322,11 +330,17 @@ pub fn run() {
         kind: MigrationKind::Up,
     }];
 
-    tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|_app, argv, _cwd| {
+    let mut builder = tauri::Builder::default();
+    
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|_app, argv, _cwd| {
             println!("a new app instance was opened with {argv:?} and the deep link event was already triggered");
             // when defining deep link schemes at runtime, you must also check `argv` here
-          }))
+          }));
+    }
+    
+    builder
         .plugin(tauri_plugin_deep_link::init())
         .setup(|app| {
             #[cfg(any(windows, target_os = "linux"))]
@@ -348,7 +362,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             download_file,
             unzip_file,
-            unrar_file,
+            unrar_file, // Available on all platforms, but returns error on Android
             create_folder,
             remove_folder,
             zip_summary,
