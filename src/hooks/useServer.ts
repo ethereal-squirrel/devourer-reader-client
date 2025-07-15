@@ -12,22 +12,23 @@ import { useAuthStore } from "../store/auth";
 export function useServer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { server, setServer, setActiveTab, setIsConnected } = useCommonStore(
-    useShallow((state) => ({
-      setActiveTab: state.setActiveTab,
-      server: state.server,
-      setServer: state.setServer,
-      setIsConnected: state.setIsConnected,
-    }))
-  );
-  const { apiKey, setApiKey, setDisplayAuthModal } =
-    useAuthStore(
+  const { server, setServer, setActiveTab, setIsConnected, setServerVersion } =
+    useCommonStore(
       useShallow((state) => ({
-        apiKey: state.apiKey,
-        setApiKey: state.setApiKey,
-        setDisplayAuthModal: state.setDisplayAuthModal
+        setActiveTab: state.setActiveTab,
+        server: state.server,
+        setServer: state.setServer,
+        setIsConnected: state.setIsConnected,
+        setServerVersion: state.setServerVersion,
       }))
     );
+  const { apiKey, setApiKey, setDisplayAuthModal } = useAuthStore(
+    useShallow((state) => ({
+      apiKey: state.apiKey,
+      setApiKey: state.setApiKey,
+      setDisplayAuthModal: state.setDisplayAuthModal,
+    }))
+  );
   const { retrieveLibraries } = useLibrary();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -38,6 +39,16 @@ export function useServer() {
         const status = await retrieveLibraries(trimmedServer);
 
         if (status) {
+          try {
+            const response = await fetch(`${trimmedServer}/version`);
+            const json = await response.json();
+
+            setServerVersion(json.version);
+          } catch (error) {
+            setServerVersion("0.0.1");
+            console.error("Server version retrieval error:", error);
+          }
+
           setDisplayAuthModal(false);
           setActiveTab("/libraries");
           setIsConnected(true);
@@ -52,7 +63,7 @@ export function useServer() {
             },
             position: "bottom-right",
           });
-          
+
           return false;
         }
       } catch (error) {

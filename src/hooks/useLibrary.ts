@@ -155,6 +155,51 @@ export function useLibrary() {
     return true;
   };
 
+  const importLibrary = async (library: any) => {
+    console.log(library);
+    console.log("/migrate/calibre", "POST", {
+      calibrePath: library.path,
+      libraryName: library.name,
+      libraryMetadataProvider: library.metadata.provider,
+    });
+    const response = await makeRequest(
+      "/migrate/calibre",
+      "POST",
+      {
+        calibrePath: library.path,
+        libraryName: library.name,
+        libraryMetadataProvider: library.metadata.provider,
+      },
+      false
+    );
+
+    if (!response.status) {
+      toast.error(
+        "Failed to import library. Please check your Calibre path and try again.",
+        {
+          position: "bottom-right",
+          style: {
+            backgroundColor: "#111827",
+            color: "#fff",
+          },
+        }
+      );
+      return false;
+    } else {
+      toast.success(
+        "Library imported successfully, give it a minute to start scanning then refresh using the icon at the top right.",
+        {
+          position: "bottom-right",
+          style: {
+            backgroundColor: "#111827",
+            color: "#fff",
+          },
+        }
+      );
+      return true;
+    }
+  };
+
   const retrieveLibrary = async (libraryId: number) => {
     const response = await makeRequest(
       `/library/${libraryId}`,
@@ -483,5 +528,6 @@ export function useLibrary() {
     scanStatus,
     getScanStatus,
     openLocalFile,
+    importLibrary,
   };
 }

@@ -1,8 +1,11 @@
+import { useState, useCallback, memo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { ask } from "@tauri-apps/plugin-dialog";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { useState, useCallback, memo } from "react";
 
-import { Library } from "../../../hooks/useLibrary";
+import { Library, useLibrary } from "../../../hooks/useLibrary";
+import { useShallow } from "zustand/react/shallow";
+import { useCommonStore } from "../../../store/common";
 
 const metadataProviders = {
   book: [
@@ -28,11 +31,6 @@ const metadataProviders = {
       value: "myanimelist",
       keyRequired: false,
     },
-    /*{
-      label: "Metron",
-      value: "metron",
-      keyRequired: false,
-    },*/
   ],
 };
 
@@ -47,6 +45,12 @@ export const CreateLibraryModal = memo(
     onSubmit: (library: any) => Promise<Library>;
   }) => {
     const { t } = useTranslation();
+    const { importLibrary } = useLibrary();
+    const { serverVersion } = useCommonStore(
+      useShallow((state) => ({
+        serverVersion: state.serverVersion,
+      }))
+    );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [library, setLibrary] = useState<Library>({
@@ -60,6 +64,15 @@ export const CreateLibraryModal = memo(
       type: "manga",
       series: [],
     });
+    const [isCalibreSupported, setIsCalibreSupported] = useState(false);
+
+    useEffect(() => {
+      if (serverVersion && serverVersion >= "1.1.0") {
+        setIsCalibreSupported(true);
+      } else {
+        setIsCalibreSupported(false);
+      }
+    }, [serverVersion]);
 
     const handleSubmit = useCallback(async () => {
       if (library.name && library.name.length === 0) {
@@ -90,6 +103,31 @@ export const CreateLibraryModal = memo(
         setLoading(false);
       }
     }, [library, onSubmit, onClose, t]);
+
+    const handleImport = useCallback(async () => {
+      if (
+        !library.path ||
+        library.path.length === 0 ||
+        !library.name ||
+        library.name.length === 0
+      ) {
+        setError(t("libraries.formFields"));
+        return;
+      }
+
+      const answer = await ask(t("libraries.calibreAreYouSure"), {
+        title: "Devourer",
+        kind: "info",
+      });
+
+      if (answer) {
+        const outcome = await importLibrary(library);
+
+        if (outcome) {
+          onClose();
+        }
+      }
+    }, [onClose, t]);
 
     return (
       <Dialog
@@ -241,6 +279,24 @@ export const CreateLibraryModal = memo(
                   {t("libraries.createLibrary")}
                 </button>
               </div>
+              {library.type === "book" && isCalibreSupported && (
+                <>
+                  <div className="mt-2">
+                    <button
+                      className={`bg-secondary hover:bg-tertiary text-white w-full p-3 rounded-md font-semibold hover:cursor-pointer ${
+                        loading ? "opacity-50" : ""
+                      }`}
+                      disabled={loading}
+                      onClick={handleImport}
+                    >
+                      {t("libraries.importFromCalibre")}
+                    </button>
+                  </div>
+                  <div className="text-sm mt-2">
+                    {t("libraries.importFromCalibreDescription")}
+                  </div>
+                </>
+              )}
             </DialogPanel>
           </div>
         </div>

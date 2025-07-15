@@ -15,6 +15,8 @@ export interface CommonState {
   setIsConnected: (isConnected: boolean) => void;
   config: any;
   setConfig: (config: any) => void;
+  serverVersion: string;
+  setServerVersion: (serverVersion: string) => void;
   hasHydrated: boolean;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -34,6 +36,8 @@ export const useCommonStore = create<CommonState>()(
       setIsConnected: (isConnected: boolean) => set({ isConnected }),
       config: {},
       setConfig: (config: any) => set({ config }),
+      serverVersion: "",
+      setServerVersion: (serverVersion: string) => set({ serverVersion }),
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
     }),
@@ -49,6 +53,7 @@ export const useCommonStore = create<CommonState>()(
         serverPassword: state.serverPassword,
         isConnected: state.isConnected,
         config: state.config,
+        serverVersion: state.serverVersion,
       }),
     }
   )
