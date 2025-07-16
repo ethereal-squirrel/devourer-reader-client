@@ -4,6 +4,7 @@ import { join } from "@tauri-apps/api/path";
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 import { BaseDirectory, mkdir, remove } from "@tauri-apps/plugin-fs";
 import { appLocalDataDir } from "@tauri-apps/api/path";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -558,17 +559,21 @@ export default function MangaReadScreen() {
             })}
           </div>
           <div className="flex flex-row items-center gap-2">
-            {renderButton(
-              mangaFitMode === "contain" ? (
-                <MagnifyingGlassIcon className="size-4" />
-              ) : (
-                <MagnifyingGlassPlusIcon className="size-4" />
-              ),
-              () => {
-                setMangaFitMode(
-                  mangaFitMode === "contain" ? "actual" : "contain"
-                );
-              }
+            {mangaViewMode === "single" && (
+              <>
+                {renderButton(
+                  mangaFitMode === "contain" ? (
+                    <MagnifyingGlassIcon className="size-4" />
+                  ) : (
+                    <MagnifyingGlassPlusIcon className="size-4" />
+                  ),
+                  () => {
+                    setMangaFitMode(
+                      mangaFitMode === "contain" ? "actual" : "contain"
+                    );
+                  }
+                )}
+              </>
             )}
             {renderButton(
               mangaDirection === "ltr" ? (
@@ -667,20 +672,32 @@ export default function MangaReadScreen() {
                     ? "manga-height"
                     : "h-[calc(100dvh-30px)]"
                 } ${
-                  mangaFitMode === "contain"
-                    ? "flex-1 flex items-center justify-center"
-                    : "flex-1"
+                  mangaFitMode === "actual"
+                    ? "flex-1"
+                    : "flex-1 flex items-center justify-center"
                 }`}
               >
-                <img
-                  src={pages[page - 1]}
-                  alt="Manga Page"
-                  className={`${
-                    mangaFitMode === "contain"
-                      ? "w-full h-full object-contain"
-                      : "object-fit"
-                  }`}
-                />
+                {mangaFitMode === "actual" ? (
+                  <TransformWrapper>
+                    <TransformComponent>
+                      <img
+                        src={pages[page - 1]}
+                        alt="Manga Page"
+                        className="w-full"
+                      />
+                    </TransformComponent>
+                  </TransformWrapper>
+                ) : (
+                  <img
+                    src={pages[page - 1]}
+                    alt="Manga Page"
+                    className={`${
+                      mangaFitMode === "contain"
+                        ? "w-full h-full object-contain"
+                        : "object-fit"
+                    }`}
+                  />
+                )}
               </div>
             ) : (
               <div
@@ -688,30 +705,16 @@ export default function MangaReadScreen() {
                   import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                     ? "manga-height"
                     : "h-[calc(100dvh-30px)]"
-                } ${
-                  mangaFitMode === "contain"
-                    ? `max-h-full max-w-full object-contain`
-                    : ""
-                }`}
+                } max-h-full max-w-full object-contain`}
               >
-                <div
-                  className={`w-1/2 ${
-                    mangaFitMode === "contain"
-                      ? "h-full flex items-center justify-end"
-                      : "flex justify-end"
-                  }`}
-                >
+                <div className="w-1/2 h-full flex items-center justify-end">
                   {shouldDisplayLeftImage() && (
                     <img
                       src={
                         mangaDirection === "ltr" ? pages[page - 1] : pages[page]
                       }
                       alt="Manga Page"
-                      className={`${
-                        mangaFitMode === "contain"
-                          ? "max-h-full max-w-full object-contain"
-                          : "w-full h-auto"
-                      }`}
+                      className="max-h-full max-w-full object-contain"
                       style={{
                         marginLeft:
                           mangaFitMode === "contain" ? "auto" : "auto",
@@ -720,24 +723,14 @@ export default function MangaReadScreen() {
                     />
                   )}
                 </div>
-                <div
-                  className={`w-1/2 ${
-                    mangaFitMode === "contain"
-                      ? "h-full flex items-center justify-start"
-                      : "flex justify-start"
-                  }`}
-                >
+                <div className="w-1/2 h-full flex items-center justify-start">
                   {shouldDisplayRightImage() && (
                     <img
                       src={
                         mangaDirection === "ltr" ? pages[page] : pages[page - 1]
                       }
                       alt="Manga Page"
-                      className={`${
-                        mangaFitMode === "contain"
-                          ? "max-h-full max-w-full object-contain"
-                          : "w-full h-auto"
-                      }`}
+                      className="max-h-full max-w-full object-contain"
                       style={{
                         marginLeft: mangaFitMode === "contain" ? 0 : 0,
                         marginRight:
