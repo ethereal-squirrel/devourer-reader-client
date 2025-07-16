@@ -15,6 +15,7 @@ import { AddToCollectionModal } from "../../organisms/common/AddToCollectionModa
 import { Book, useBook } from "../../../hooks/useBook";
 import { useLibrary } from "../../../hooks/useLibrary";
 import { Series, useManga } from "../../../hooks/useManga";
+import { useAuthStore } from "../../../store/auth";
 import { useCommonStore } from "../../../store/common";
 
 export default function EntityNav({
@@ -37,6 +38,11 @@ export default function EntityNav({
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
+    }))
+  );
+  const { roles } = useAuthStore(
+    useShallow((state) => ({
+      roles: state.roles,
     }))
   );
   const { retrieveLibrary } = useLibrary();
@@ -168,31 +174,33 @@ export default function EntityNav({
             </button>
             {displayMoreOptions && (
               <div className="mt-[0.5rem] p-3 pt-0">
-                <Button
-                  className="w-full"
-                  onPress={() => {
-                    navigate(
-                      type === "book"
-                        ? `/book/${
-                            isLocal
-                              ? (entity as Book).file_id
-                              : (entity as Book).id
-                          }/metadata${isLocal ? "?local=book" : ""}${
-                            localServer ? `&localServer=${localServer}` : ""
-                          }`
-                        : `/manga/${
-                            isLocal
-                              ? (entity as Series).series_id
-                              : (entity as Series).id
-                          }/metadata${isLocal ? "?local=manga" : ""}${
-                            localServer ? `&localServer=${localServer}` : ""
-                          }`
-                    );
-                  }}
-                >
-                  <PencilIcon className="w-4 h-4" />
-                  {t("common.editMetadata")}
-                </Button>
+                {roles.edit_metadata && (
+                  <Button
+                    className="w-full"
+                    onPress={() => {
+                      navigate(
+                        type === "book"
+                          ? `/book/${
+                              isLocal
+                                ? (entity as Book).file_id
+                                : (entity as Book).id
+                            }/metadata${isLocal ? "?local=book" : ""}${
+                              localServer ? `&localServer=${localServer}` : ""
+                            }`
+                          : `/manga/${
+                              isLocal
+                                ? (entity as Series).series_id
+                                : (entity as Series).id
+                            }/metadata${isLocal ? "?local=manga" : ""}${
+                              localServer ? `&localServer=${localServer}` : ""
+                            }`
+                      );
+                    }}
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                    {t("common.editMetadata")}
+                  </Button>
+                )}
                 {!isLocal && (
                   <Button
                     className="mt-[0.5rem] w-full"

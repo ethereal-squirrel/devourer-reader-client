@@ -494,6 +494,16 @@ export function useLibrary() {
     }
   };
 
+  const getRoles = async (host?: string) => {
+    const response = await makeRequest("/roles", "GET", undefined, false, host);
+
+    if (!response.status) {
+      throw new Error("Failed to fetch roles");
+    }
+
+    return response;
+  };
+
   useEffect(() => {
     if (!libraryId) {
       setLibraryData(null);
@@ -529,5 +539,6 @@ export function useLibrary() {
     getScanStatus,
     openLocalFile,
     importLibrary,
+    getRoles,
   };
 }

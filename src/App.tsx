@@ -21,6 +21,7 @@ import Collection from "./screens/Collection";
 import SettingsClient from "./screens/SettingsClient";
 import ProviderGoogle from "./screens/ProviderGoogle";
 import OauthGoogle from "./screens/OauthGoogle";
+import Users from "./screens/Users";
 import ImportHandler from "./components/molecules/import/ImportHandler";
 
 import "../i18n";
@@ -129,6 +130,7 @@ function App() {
         <Route path="/settings/client" element={<SettingsClient />} />
         <Route path="/providers/google" element={<ProviderGoogle />} />
         <Route path="/oauth-google" element={<OauthGoogle />} />
+        <Route path="/users" element={<Users />} />
       </Routes>
       <DeepLinkHandler />
       <ImportHandler />

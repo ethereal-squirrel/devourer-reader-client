@@ -3,17 +3,23 @@ import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 import { useState, useCallback, useMemo, memo, useEffect } from "react";
 import { toast } from "react-toastify";
-import { ArrowPathIcon, PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowPathIcon,
+  PencilIcon,
+  PlusIcon,
+  UserIcon,
+} from "@heroicons/react/24/solid";
 
 import Button from "../components/atoms/Button";
 import ServerConnect from "../components/organisms/common/ServerConnect";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { CreateLibraryModal } from "../components/organisms/libraries/CreateLibraryModal";
+import { EditLibraryModal } from "../components/organisms/libraries/EditLibraryModal";
 import { Container } from "../components/templates/Container";
 import { Library, useLibrary } from "../hooks/useLibrary";
+import { useAuthStore } from "../store/auth";
 import { useCommonStore } from "../store/common";
 import { useLibraryStore } from "../store/library";
-import { EditLibraryModal } from "../components/organisms/libraries/EditLibraryModal";
 
 const LibraryCard = memo(
   ({
@@ -102,6 +108,11 @@ export default function LibrariesScreen() {
       isConnected: state.isConnected,
     }))
   );
+  const { roles } = useAuthStore(
+    useShallow((state) => ({
+      roles: state.roles,
+    }))
+  );
   const { librariesData, setLibraryId, recentlyRead } = useLibraryStore(
     useShallow((state) => ({
       librariesData: state.librariesData,
@@ -144,23 +155,35 @@ export default function LibrariesScreen() {
     <>
       <div className="h-screen flex flex-col bg-secondary">
         <Container className="flex-1 px-5 pb-24 pt-12">
-          <div className="flex flex-col md:flex-row gap-2 mb-5 mt-[1rem] md:mt-0">
+          <div className="flex flex-col md:flex-row gap-2 mb-5 mt-[1.5rem] md:mt-0">
             {isMobile && <LocalLibraries />}
-            <Button
-              className="ml-auto mr-0 rounded-full w-full md:w-auto px-2 py-1"
-              onPress={() => {
-                retrieveLibraries();
-                toast.success(t("toast.librariesRefreshed"), {
-                  style: {
-                    backgroundColor: "#111827",
-                    color: "#fff",
-                  },
-                  position: "bottom-right",
-                });
-              }}
-            >
-              <ArrowPathIcon className="w-5 h-5" />
-            </Button>
+            {roles.add_file && (
+              <Button
+                className="ml-auto mr-0 rounded-full w-full md:w-auto px-2 py-1"
+                onPress={() => {
+                  navigate("/users");
+                }}
+              >
+                <UserIcon className="w-5 h-5" />
+              </Button>
+            )}
+            {roles.create_user && (
+              <Button
+                className="rounded-full w-full md:w-auto px-2 py-1"
+                onPress={() => {
+                  retrieveLibraries();
+                  toast.success(t("toast.librariesRefreshed"), {
+                    style: {
+                      backgroundColor: "#111827",
+                      color: "#fff",
+                    },
+                    position: "bottom-right",
+                  });
+                }}
+              >
+                <ArrowPathIcon className="w-5 h-5" />
+              </Button>
+            )}
           </div>
           <div className="flex flex-col items-center justify-center mb-[4rem]">
             {!isConnected ? (
@@ -219,12 +242,14 @@ export default function LibrariesScreen() {
                         ? t("libraries.remote")
                         : t("libraries.general")}
                     </h1>
-                    <Button
-                      className={styles.button}
-                      onPress={() => setDisplayModal(true)}
-                    >
-                      <PlusIcon className="w-5 h-5" />
-                    </Button>
+                    {roles.manage_library && (
+                      <Button
+                        className={styles.button}
+                        onPress={() => setDisplayModal(true)}
+                      >
+                        <PlusIcon className="w-5 h-5" />
+                      </Button>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-5 w-full mt-5">
                     {librariesData &&
@@ -246,11 +271,13 @@ export default function LibrariesScreen() {
         </Container>
         <TabBar />
       </div>
-      <CreateLibraryModal
-        isOpen={displayModal}
-        onClose={() => setDisplayModal(false)}
-        onSubmit={createLibrary}
-      />
+      {displayModal && (
+        <CreateLibraryModal
+          isOpen={displayModal}
+          onClose={() => setDisplayModal(false)}
+          onSubmit={createLibrary}
+        />
+      )}
       {librariesData && displayEditModal && editLibraryId && (
         <EditLibraryModal
           library={

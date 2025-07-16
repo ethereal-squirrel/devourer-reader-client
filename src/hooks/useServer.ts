@@ -6,12 +6,14 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { useLibrary } from "./useLibrary";
+import { useRequest } from "./useRequest";
 import { useCommonStore } from "../store/common";
 import { useAuthStore } from "../store/auth";
 
 export function useServer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { makeRequest } = useRequest();
   const { server, setServer, setActiveTab, setIsConnected, setServerVersion } =
     useCommonStore(
       useShallow((state) => ({
@@ -22,14 +24,17 @@ export function useServer() {
         setServerVersion: state.setServerVersion,
       }))
     );
-  const { apiKey, setApiKey, setDisplayAuthModal } = useAuthStore(
-    useShallow((state) => ({
-      apiKey: state.apiKey,
-      setApiKey: state.setApiKey,
-      setDisplayAuthModal: state.setDisplayAuthModal,
-    }))
-  );
-  const { retrieveLibraries } = useLibrary();
+  const { apiKey, setApiKey, setDisplayAuthModal, setRoles, setUsername } =
+    useAuthStore(
+      useShallow((state) => ({
+        apiKey: state.apiKey,
+        setApiKey: state.setApiKey,
+        setDisplayAuthModal: state.setDisplayAuthModal,
+        setRoles: state.setRoles,
+        setUsername: state.setUsername,
+      }))
+    );
+  const { retrieveLibraries, getRoles } = useLibrary();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -47,6 +52,14 @@ export function useServer() {
           } catch (error) {
             setServerVersion("0.0.1");
             console.error("Server version retrieval error:", error);
+          }
+
+          try {
+            const response = await getRoles(trimmedServer);
+            setRoles(response.roles);
+            setUsername(response.username);
+          } catch (error) {
+            console.error("Server roles retrieval error:", error);
           }
 
           setDisplayAuthModal(false);
@@ -244,9 +257,69 @@ export function useServer() {
     ]
   );
 
+  const getUsers = useCallback(async () => {
+    const response = await makeRequest("/users", "GET");
+
+    if (!response.status) {
+      throw new Error("Failed to fetch users");
+    }
+
+    return response.users;
+  }, [makeRequest]);
+
+  const createUser = useCallback(
+    async (username: string, password: string, role: string) => {
+      const response = await makeRequest("/users", "POST", {
+        username,
+        password,
+        role,
+      });
+
+      if (!response.status) {
+        throw new Error("Failed to create user");
+      }
+
+      return true;
+    },
+    [makeRequest]
+  );
+
+  const editUser = useCallback(
+    async (userId: number, role: string, password?: string) => {
+      const response = await makeRequest(`/users/${userId}`, "PATCH", {
+        role,
+        password,
+      });
+
+      if (!response.status) {
+        throw new Error("Failed to edit user");
+      }
+
+      return true;
+    },
+    [makeRequest]
+  );
+
+  const deleteUser = useCallback(
+    async (userId: number) => {
+      const response = await makeRequest(`/users/${userId}`, "DELETE");
+
+      if (!response.status) {
+        throw new Error("Failed to delete user");
+      }
+
+      return true;
+    },
+    [makeRequest]
+  );
+
   return {
     connectToServer,
     loading,
     error,
+    getUsers,
+    createUser,
+    deleteUser,
+    editUser,
   };
 }
