@@ -2,8 +2,7 @@ import { useNavigate } from "react-router";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
-import { ArrowLeftIcon, PencilIcon } from "@heroicons/react/24/solid";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 import Button from "../components/atoms/Button";
 import { TabBar } from "../components/organisms/common/TabBar";
@@ -12,6 +11,7 @@ import { useServer } from "../hooks/useServer";
 import { useAuthStore } from "../store/auth";
 import { useCommonStore } from "../store/common";
 import { CreateUserModal } from "../components/organisms/users/CreateUserModal";
+import { EditUserModal } from "../components/organisms/users/EditUserModal";
 
 export default function Users() {
   const { getUsers, deleteUser } = useServer();
@@ -20,10 +20,9 @@ export default function Users() {
       users: state.users,
     }))
   );
-  const { username, roles } = useAuthStore(
+  const { username } = useAuthStore(
     useShallow((state) => ({
       username: state.username,
-      roles: state.roles,
     }))
   );
 
@@ -31,6 +30,8 @@ export default function Users() {
   const navigate = useNavigate();
 
   const [displayCreateModal, setDisplayCreateModal] = useState(false);
+  const [displayEditModal, setDisplayEditModal] = useState(false);
+  const [editUser, setEditUser] = useState<any>(null);
 
   useEffect(() => {
     getUsers();
@@ -95,18 +96,26 @@ export default function Users() {
                         <td className="text-left p-3">{user.collections}</td>
                         <td className="justify-end text-right flex flex-row gap-2 py-3">
                           {user.email !== "admin" && (
-                            <Button
-                              className="text-xs"
-                              onPress={() => {
-                                deleteUser(user.id);
-                              }}
-                            >
-                              {t("users.delete")}
-                            </Button>
+                            <>
+                              <Button
+                                className="text-xs"
+                                onPress={() => {
+                                  deleteUser(user.id);
+                                }}
+                              >
+                                {t("users.delete")}
+                              </Button>
+                              <Button
+                                className="text-xs mr-3"
+                                onPress={() => {
+                                  setDisplayEditModal(true);
+                                  setEditUser(user);
+                                }}
+                              >
+                                {t("users.edit")}
+                              </Button>
+                            </>
                           )}
-                          <Button className="text-xs mr-3" onPress={() => {}}>
-                            {t("users.edit")}
-                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -123,6 +132,16 @@ export default function Users() {
           isOpen={displayCreateModal}
           onClose={() => {
             setDisplayCreateModal(false);
+          }}
+        />
+      )}
+      {displayEditModal && editUser && (
+        <EditUserModal
+          isOpen={displayEditModal}
+          user={editUser}
+          onClose={() => {
+            setEditUser(null);
+            setDisplayEditModal(false);
           }}
         />
       )}

@@ -294,7 +294,7 @@ export function useServer() {
 
   const editUser = useCallback(
     async (userId: number, role: string, password?: string) => {
-      const response = await makeRequest(`/users/${userId}`, "PATCH", {
+      const response = await makeRequest(`/user/${userId}`, "PATCH", {
         role,
         password,
       });

@@ -5,17 +5,25 @@ import { useState, useCallback, memo } from "react";
 import Button from "../../atoms/Button";
 import { useServer } from "../../../hooks/useServer";
 
-export const CreateUserModal = memo(
-  ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-    const { createUser, getUsers } = useServer();
+export const EditUserModal = memo(
+  ({
+    isOpen,
+    onClose,
+    user,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
+    user: any;
+  }) => {
+    const { editUser, getUsers } = useServer();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [payload, setPayload] = useState({
-      username: "",
+      username: user.username,
       password: "",
       passwordConfirm: "",
-      role: "user",
+      role: user.roles[0],
     });
 
     const handleSubmit = useCallback(async () => {
@@ -36,7 +44,11 @@ export const CreateUserModal = memo(
       setError(null);
       try {
         try {
-          await createUser(payload.username, payload.password, payload.role);
+          await editUser(
+            user.id,
+            payload.role,
+            payload.password.length >= 8 ? payload.password : undefined
+          );
           await getUsers();
           onClose();
         } catch (err) {
@@ -66,21 +78,12 @@ export const CreateUserModal = memo(
               className="w-full max-w-md rounded-xl bg-gray-900 text-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
             >
               <DialogTitle as="h3" className="font-semibold text-2xl">
-                {t("users.createUser")}
+                Edit {user.email}
               </DialogTitle>
               <div className="mt-5">
-                <label htmlFor="username" className="font-semibold">
-                  {t("login.username")}
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
-                  value={payload.username}
-                  onChange={(e) =>
-                    setPayload({ ...payload, username: e.target.value })
-                  }
-                />
+                <div className="mb-5 text-sm text-gray-400">
+                  {t("users.editUserDescription")}
+                </div>
                 <label htmlFor="password" className="font-semibold">
                   {t("login.password")}
                 </label>
@@ -146,7 +149,7 @@ export const CreateUserModal = memo(
                   disabled={loading}
                   onPress={handleSubmit}
                 >
-                  {t("users.createUser")}
+                  {t("users.editUser")}
                 </Button>
               </div>
             </DialogPanel>

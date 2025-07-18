@@ -130,6 +130,8 @@
   "users": {
     "title": "Users",
     "createUser": "Create user",
+    "editUser": "Edit user",
+    "editUserDescription": "Leave password empty to keep the current password.",
     "loggedInAs": "Logged in as:",
     "username": "Username",
     "role": "Role",
