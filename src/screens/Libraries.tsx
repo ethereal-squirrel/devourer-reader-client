@@ -157,7 +157,7 @@ export default function LibrariesScreen() {
         <Container className="flex-1 px-5 pb-24 pt-12">
           <div className="flex flex-col md:flex-row gap-2 mb-5 mt-[1.5rem] md:mt-0">
             {isMobile && <LocalLibraries />}
-            {roles.add_file && (
+            {(roles.is_admin || roles.add_file) && (
               <Button
                 className="ml-auto mr-0 rounded-full w-full md:w-auto px-2 py-1"
                 onPress={() => {
@@ -167,7 +167,7 @@ export default function LibrariesScreen() {
                 <UserIcon className="w-5 h-5" />
               </Button>
             )}
-            {roles.create_user && (
+            {(roles.is_admin || roles.create_user) && (
               <Button
                 className="rounded-full w-full md:w-auto px-2 py-1"
                 onPress={() => {
@@ -198,7 +198,7 @@ export default function LibrariesScreen() {
                 <div className="w-full">
                   <div className="flex flex-row gap-2">
                     <h1 className="text-2xl text-white font-bold">
-                      Recently read
+                      Continue reading
                     </h1>
                   </div>
                   <div className="w-full flex flex-row overflow-x-auto gap-5 my-5">
@@ -227,7 +227,7 @@ export default function LibrariesScreen() {
                           }}
                         >
                           <img
-                            src={`${server}/cover-image/${item.library_id}/${item.series_id}.webp`}
+                            src={`${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`}
                             alt={item.title}
                             className="w-full h-full object-cover rounded-xl"
                           />

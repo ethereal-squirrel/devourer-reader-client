@@ -9,21 +9,29 @@ import { useLibrary } from "./useLibrary";
 import { useRequest } from "./useRequest";
 import { useCommonStore } from "../store/common";
 import { useAuthStore } from "../store/auth";
+import { ask } from "@tauri-apps/plugin-dialog";
 
 export function useServer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { makeRequest } = useRequest();
-  const { server, setServer, setActiveTab, setIsConnected, setServerVersion } =
-    useCommonStore(
-      useShallow((state) => ({
-        setActiveTab: state.setActiveTab,
-        server: state.server,
-        setServer: state.setServer,
-        setIsConnected: state.setIsConnected,
-        setServerVersion: state.setServerVersion,
-      }))
-    );
+  const {
+    server,
+    setServer,
+    setActiveTab,
+    setIsConnected,
+    setServerVersion,
+    setUsers,
+  } = useCommonStore(
+    useShallow((state) => ({
+      setActiveTab: state.setActiveTab,
+      server: state.server,
+      setServer: state.setServer,
+      setIsConnected: state.setIsConnected,
+      setServerVersion: state.setServerVersion,
+      setUsers: state.setUsers,
+    }))
+  );
   const { apiKey, setApiKey, setDisplayAuthModal, setRoles, setUsername } =
     useAuthStore(
       useShallow((state) => ({
@@ -264,8 +272,8 @@ export function useServer() {
       throw new Error("Failed to fetch users");
     }
 
-    return response.users;
-  }, [makeRequest]);
+    setUsers(response.users);
+  }, [makeRequest, setUsers]);
 
   const createUser = useCallback(
     async (username: string, password: string, role: string) => {
@@ -302,15 +310,42 @@ export function useServer() {
 
   const deleteUser = useCallback(
     async (userId: number) => {
-      const response = await makeRequest(`/users/${userId}`, "DELETE");
+      const answer = await ask("Are you sure you want to delete this user?", {
+        title: "Devourer",
+        kind: "warning",
+      });
 
-      if (!response.status) {
-        throw new Error("Failed to delete user");
+      if (answer) {
+        const response = await makeRequest(`/user/${userId}`, "DELETE");
+
+        if (!response.status) {
+          toast.error("Failed to delete user.", {
+            style: {
+              backgroundColor: "#111827",
+              color: "#fff",
+            },
+            position: "bottom-right",
+          });
+
+          throw new Error("Failed to delete user");
+        }
+
+        toast.success("User successfully deleted.", {
+          style: {
+            backgroundColor: "#111827",
+            color: "#fff",
+          },
+          position: "bottom-right",
+        });
+
+        await getUsers();
+
+        return true;
+      } else {
+        return false;
       }
-
-      return true;
     },
-    [makeRequest]
+    [makeRequest, getUsers]
   );
 
   return {

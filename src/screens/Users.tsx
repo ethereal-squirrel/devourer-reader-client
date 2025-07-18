@@ -14,10 +14,10 @@ import { useCommonStore } from "../store/common";
 import { CreateUserModal } from "../components/organisms/users/CreateUserModal";
 
 export default function Users() {
-  const { getUsers } = useServer();
-  const { server } = useCommonStore(
+  const { getUsers, deleteUser } = useServer();
+  const { users } = useCommonStore(
     useShallow((state) => ({
-      server: state.server,
+      users: state.users,
     }))
   );
   const { username, roles } = useAuthStore(
@@ -31,12 +31,9 @@ export default function Users() {
   const navigate = useNavigate();
 
   const [displayCreateModal, setDisplayCreateModal] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
-    getUsers().then((users) => {
-      setUsers(users);
-    });
+    getUsers();
   }, []);
 
   return (
@@ -98,7 +95,12 @@ export default function Users() {
                         <td className="text-left p-3">{user.collections}</td>
                         <td className="justify-end text-right flex flex-row gap-2 py-3">
                           {user.email !== "admin" && (
-                            <Button className="text-xs" onPress={() => {}}>
+                            <Button
+                              className="text-xs"
+                              onPress={() => {
+                                deleteUser(user.id);
+                              }}
+                            >
                               {t("users.delete")}
                             </Button>
                           )}

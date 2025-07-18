@@ -7,7 +7,7 @@ import { useServer } from "../../../hooks/useServer";
 
 export const CreateUserModal = memo(
   ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-    const { createUser } = useServer();
+    const { createUser, getUsers } = useServer();
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -37,6 +37,7 @@ export const CreateUserModal = memo(
       try {
         try {
           await createUser(payload.username, payload.password, payload.role);
+          await getUsers();
           onClose();
         } catch (err) {
           setError(err instanceof Error ? err.message : "An error occurred");
@@ -131,7 +132,7 @@ export const CreateUserModal = memo(
               </div>
               {error && (
                 <div
-                  className="mt-5 p-2 bg-red-900/50 rounded-md text-white"
+                  className="mb-5 p-2 bg-red-900/50 rounded-md text-white"
                   role="alert"
                   aria-live="assertive"
                   aria-atomic="true"
