@@ -8,6 +8,8 @@ export interface AuthState {
   username: string;
   setUsername: (username: string) => void;
   password: string;
+  roles: any;
+  setRoles: (roles: any) => void;
   setPassword: (password: string) => void;
   displayAuthModal: boolean;
   setDisplayAuthModal: (displayAuthModal: boolean) => void;
@@ -31,6 +33,16 @@ export const useAuthStore = create<AuthState>()(
       username: "",
       setUsername: (username: string) => set({ username }),
       password: "",
+      roles: {
+        is_admin: false,
+        add_file: false,
+        delete_file: false,
+        edit_metadata: false,
+        manage_collections: false,
+        manage_library: false,
+        create_user: false,
+      },
+      setRoles: (roles: any) => set({ roles }),
       setPassword: (password: string) => set({ password }),
       displayAuthModal: false,
       setDisplayAuthModal: (displayAuthModal: boolean) =>
@@ -58,6 +70,7 @@ export const useAuthStore = create<AuthState>()(
       },
       partialize: (state) => ({
         apiKey: state.apiKey,
+        roles: state.roles,
         oauthGoogleAccessToken: state.oauthGoogleAccessToken,
         oauthGoogleRefreshToken: state.oauthGoogleRefreshToken,
         oauthDropboxAccessToken: state.oauthDropboxAccessToken,

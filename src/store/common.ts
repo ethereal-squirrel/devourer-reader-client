@@ -17,6 +17,8 @@ export interface CommonState {
   setConfig: (config: any) => void;
   serverVersion: string;
   setServerVersion: (serverVersion: string) => void;
+  users: any[];
+  setUsers: (users: any[]) => void;
   hasHydrated: boolean;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -38,6 +40,8 @@ export const useCommonStore = create<CommonState>()(
       setConfig: (config: any) => set({ config }),
       serverVersion: "",
       setServerVersion: (serverVersion: string) => set({ serverVersion }),
+      users: [],
+      setUsers: (users: any[]) => set({ users }),
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
     }),
@@ -54,6 +58,7 @@ export const useCommonStore = create<CommonState>()(
         isConnected: state.isConnected,
         config: state.config,
         serverVersion: state.serverVersion,
+        users: state.users,
       }),
     }
   )

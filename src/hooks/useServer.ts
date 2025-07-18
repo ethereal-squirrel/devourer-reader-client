@@ -6,30 +6,43 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { useLibrary } from "./useLibrary";
+import { useRequest } from "./useRequest";
 import { useCommonStore } from "../store/common";
 import { useAuthStore } from "../store/auth";
+import { ask } from "@tauri-apps/plugin-dialog";
 
 export function useServer() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { server, setServer, setActiveTab, setIsConnected, setServerVersion } =
-    useCommonStore(
-      useShallow((state) => ({
-        setActiveTab: state.setActiveTab,
-        server: state.server,
-        setServer: state.setServer,
-        setIsConnected: state.setIsConnected,
-        setServerVersion: state.setServerVersion,
-      }))
-    );
-  const { apiKey, setApiKey, setDisplayAuthModal } = useAuthStore(
+  const { makeRequest } = useRequest();
+  const {
+    server,
+    setServer,
+    setActiveTab,
+    setIsConnected,
+    setServerVersion,
+    setUsers,
+  } = useCommonStore(
     useShallow((state) => ({
-      apiKey: state.apiKey,
-      setApiKey: state.setApiKey,
-      setDisplayAuthModal: state.setDisplayAuthModal,
+      setActiveTab: state.setActiveTab,
+      server: state.server,
+      setServer: state.setServer,
+      setIsConnected: state.setIsConnected,
+      setServerVersion: state.setServerVersion,
+      setUsers: state.setUsers,
     }))
   );
-  const { retrieveLibraries } = useLibrary();
+  const { apiKey, setApiKey, setDisplayAuthModal, setRoles, setUsername } =
+    useAuthStore(
+      useShallow((state) => ({
+        apiKey: state.apiKey,
+        setApiKey: state.setApiKey,
+        setDisplayAuthModal: state.setDisplayAuthModal,
+        setRoles: state.setRoles,
+        setUsername: state.setUsername,
+      }))
+    );
+  const { retrieveLibraries, getRoles } = useLibrary();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -47,6 +60,14 @@ export function useServer() {
           } catch (error) {
             setServerVersion("0.0.1");
             console.error("Server version retrieval error:", error);
+          }
+
+          try {
+            const response = await getRoles(trimmedServer);
+            setRoles(response.roles);
+            setUsername(response.username);
+          } catch (error) {
+            console.error("Server roles retrieval error:", error);
           }
 
           setDisplayAuthModal(false);
@@ -244,9 +265,96 @@ export function useServer() {
     ]
   );
 
+  const getUsers = useCallback(async () => {
+    const response = await makeRequest("/users", "GET");
+
+    if (!response.status) {
+      throw new Error("Failed to fetch users");
+    }
+
+    setUsers(response.users);
+  }, [makeRequest, setUsers]);
+
+  const createUser = useCallback(
+    async (username: string, password: string, role: string) => {
+      const response = await makeRequest("/users", "POST", {
+        username,
+        password,
+        role,
+      });
+
+      if (!response.status) {
+        throw new Error("Failed to create user");
+      }
+
+      return true;
+    },
+    [makeRequest]
+  );
+
+  const editUser = useCallback(
+    async (userId: number, role: string, password?: string) => {
+      const response = await makeRequest(`/user/${userId}`, "PATCH", {
+        role,
+        password,
+      });
+
+      if (!response.status) {
+        throw new Error("Failed to edit user");
+      }
+
+      return true;
+    },
+    [makeRequest]
+  );
+
+  const deleteUser = useCallback(
+    async (userId: number) => {
+      const answer = await ask("Are you sure you want to delete this user?", {
+        title: "Devourer",
+        kind: "warning",
+      });
+
+      if (answer) {
+        const response = await makeRequest(`/user/${userId}`, "DELETE");
+
+        if (!response.status) {
+          toast.error("Failed to delete user.", {
+            style: {
+              backgroundColor: "#111827",
+              color: "#fff",
+            },
+            position: "bottom-right",
+          });
+
+          throw new Error("Failed to delete user");
+        }
+
+        toast.success("User successfully deleted.", {
+          style: {
+            backgroundColor: "#111827",
+            color: "#fff",
+          },
+          position: "bottom-right",
+        });
+
+        await getUsers();
+
+        return true;
+      } else {
+        return false;
+      }
+    },
+    [makeRequest, getUsers]
+  );
+
   return {
     connectToServer,
     loading,
     error,
+    getUsers,
+    createUser,
+    deleteUser,
+    editUser,
   };
 }

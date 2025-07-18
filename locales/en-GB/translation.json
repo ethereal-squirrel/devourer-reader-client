@@ -6,6 +6,7 @@
     "import": "Import",
     "read": "Read",
     "connectToServer": "Connect to Server",
+    "returnToLibraries": "Return to libraries",
     "manga": "Manga / Comic",
     "book": "Book",
     "loading": "Loading...",
@@ -120,7 +121,23 @@
     "description": "This server requires your username and password to access.",
     "username": "Username",
     "password": "Password",
+    "passwordConfirm": "Confirm password",
+    "createErrorUsername": "Please enter a username",
+    "createErrorPasswordLength": "Password must be at least 8 characters long",
+    "createErrorPasswordConfirm": "Passwords do not match",
     "login": "Log in"
+  },
+  "users": {
+    "title": "Users",
+    "createUser": "Create user",
+    "editUser": "Edit user",
+    "editUserDescription": "Leave password empty to keep the current password.",
+    "loggedInAs": "Logged in as:",
+    "username": "Username",
+    "role": "Role",
+    "collections": "Collections",
+    "delete": "Delete",
+    "edit": "Edit"
   },
   "book": {
     "readNow": "Read now",

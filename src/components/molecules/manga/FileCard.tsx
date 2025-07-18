@@ -140,8 +140,8 @@ const FileCard = memo(
         <div className="h-[14rem] relative overflow-hidden">
           <div
             className={
-              entity.current_page > 1 &&
-              entity.current_page === entity.total_pages
+              Number(entity.current_page) > 1 &&
+              Number(entity.current_page) === Number(entity.total_pages)
                 ? "opacity-50"
                 : ""
             }
@@ -192,7 +192,8 @@ const FileCard = memo(
               <FolderPlusIcon className="w-4 h-4" />
             )}
           </button>
-          {isRead || entity.current_page === entity.total_pages ? (
+          {isRead ||
+          Number(entity.current_page) === Number(entity.total_pages) ? (
             <div className="absolute top-1 right-1 bg-black/75 text-white p-1 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -211,7 +212,7 @@ const FileCard = memo(
             </div>
           ) : (
             <>
-              {entity.current_page > 1 && (
+              {Number(entity.current_page) > 1 && (
                 <div className="absolute top-1 right-1 bg-black/75 text-white p-1 rounded-xl text-sm px-2 py-1">
                   {entity.current_page} / {entity.total_pages}
                 </div>

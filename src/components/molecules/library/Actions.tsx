@@ -1,9 +1,11 @@
 import { useTranslation } from "react-i18next";
+import { useShallow } from "zustand/react/shallow";
+import { useEffect } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 import Button from "../../atoms/Button";
 import { useLibrary } from "../../../hooks/useLibrary";
-import { useEffect } from "react";
+import { useAuthStore } from "../../../store/auth";
 
 export default function Actions({
   activeTab,
@@ -20,6 +22,11 @@ export default function Actions({
 }) {
   const { t } = useTranslation();
   const { scanLibrary, scanStatus, getScanStatus } = useLibrary();
+  const { roles } = useAuthStore(
+    useShallow((state) => ({
+      roles: state.roles,
+    }))
+  );
 
   useEffect(() => {
     if (libraryId && getScanStatus) {
@@ -93,23 +100,27 @@ export default function Actions({
         )}
       </div>
       <div className="w-full md:w-auto">
-        <Button
-          onPress={async () => {
-            scanLibrary(libraryId);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            getScanStatus(libraryId);
-          }}
-          className="w-full md:w-[12rem]"
-          disabled={
-            scanStatus &&
+        {roles.add_file && (
+          <Button
+            onPress={async () => {
+              scanLibrary(libraryId);
+              await new Promise((resolve) => setTimeout(resolve, 100));
+              getScanStatus(libraryId);
+            }}
+            className="w-full md:w-[12rem]"
+            disabled={
+              scanStatus &&
+              scanStatus.remaining &&
+              scanStatus.remaining.length > 0
+            }
+          >
+            {scanStatus &&
             scanStatus.remaining &&
             scanStatus.remaining.length > 0
-          }
-        >
-          {scanStatus && scanStatus.remaining && scanStatus.remaining.length > 0
-            ? t("library.scanInProgress")
-            : t("library.scan")}
-        </Button>
+              ? t("library.scanInProgress")
+              : t("library.scan")}
+          </Button>
+        )}
       </div>
     </div>
   );
