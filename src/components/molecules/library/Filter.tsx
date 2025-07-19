@@ -1,14 +1,30 @@
 export default function Filter({
   filter,
   setFilter,
+  filterBy,
+  setFilterBy,
   placeholder,
 }: {
   filter: string;
   setFilter: (filter: string) => void;
+  filterBy: string;
+  setFilterBy: (filterBy: string) => void;
   placeholder: string;
 }) {
   return (
-    <div className="mt-5">
+    <div className="flex flex-row mt-5">
+      <select
+        value={filterBy}
+        onChange={(e) => {
+          setFilter("");
+          setFilterBy(e.target.value as "title" | "author" | "genre");
+        }}
+        className="flex-shrink-1 border border-gray-400 border-r-0 rounded-md rounded-r-none p-3 bg-tertiary text-white"
+      >
+        <option value="title">Title</option>
+        <option value="author">Author</option>
+        <option value="genre">Genre</option>
+      </select>
       <input
         placeholder={placeholder}
         className={styles.input}
@@ -20,5 +36,6 @@ export default function Filter({
 }
 
 const styles = {
-  input: "border border-gray-400 rounded-md p-3 w-full bg-input text-white",
+  input:
+    "border border-gray-400 rounded-md rounded-l-none p-3 w-full bg-input text-white",
 };

@@ -43,13 +43,14 @@ export function useBook() {
   const {
     filter: filterBook,
     setFilter: setFilterBook,
+    filterBy: filterBookBy,
+    setFilterBy: setFilterBookBy,
     filteredItems: filteredBookSeries,
   } = useEntityFilter<Book>((libraryData?.series || []) as Book[], {
     searchFields: [
       "title",
-      (item: Book) => item.metadata?.original_title || "",
-      (item: Book) => item.metadata?.epub?.title || "",
       (item: Book) => item.metadata?.authors || [],
+      (item: Book) => item.metadata?.genres || [],
     ],
     minCharacters: 3,
   });
@@ -248,7 +249,9 @@ export function useBook() {
     retrieveLocalBook,
     filteredBookSeries,
     filterBook,
+    filterBookBy,
     setFilterBook,
+    setFilterBookBy,
     searchGoogleMetadata,
     selectGoogleResult,
     makeBookAvailableOffline,
