@@ -275,7 +275,7 @@ export default function EntityNav({
                     {t("common.manageTags")}
                   </Button>
                 )}
-                {!isLocal && (
+                {!isLocal && type === "book" && (
                   <Button
                     className="mt-[0.5rem] w-full"
                     onPress={() => {
