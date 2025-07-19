@@ -9,6 +9,7 @@ import {
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import {
+  BookOpenIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   TagIcon,
@@ -22,6 +23,7 @@ import { Series, useManga } from "../../../hooks/useManga";
 import { useAuthStore } from "../../../store/auth";
 import { useCommonStore } from "../../../store/common";
 import { ManageTagsModal } from "../../organisms/common/ManageTagsModal";
+import { SendToKindleModal } from "../../organisms/common/SendToKindleModal";
 
 export default function EntityNav({
   type,
@@ -57,6 +59,8 @@ export default function EntityNav({
     useManga();
   const [displayMoreOptions, setDisplayMoreOptions] = useState(false);
   const [displayTagsModal, setDisplayTagsModal] = useState(false);
+  const [displaySendToKindleModal, setDisplaySendToKindleModal] =
+    useState(false);
   const [displayAddToCollectionModal, setDisplayAddToCollectionModal] =
     useState(false);
 
@@ -135,7 +139,7 @@ export default function EntityNav({
             <h1 className="font-bold text-start text-xl text-white">
               {type === "book" ? (
                 <>
-                  {(entity as Book).metadata.title
+                  {(entity as Book).metadata && (entity as Book).metadata.title
                     ? (entity as Book).metadata.title
                     : (entity as Book).title}
                 </>
@@ -145,7 +149,8 @@ export default function EntityNav({
             </h1>
             {type === "book" && (
               <>
-                {(entity as Book).metadata.subtitle &&
+                {(entity as Book).metadata &&
+                  (entity as Book).metadata.subtitle &&
                   (entity as Book).metadata.subtitle.length > 0 && (
                     <div className="text-[16px] text-white">
                       {(entity as Book).metadata.subtitle}
@@ -270,23 +275,47 @@ export default function EntityNav({
                     {t("common.manageTags")}
                   </Button>
                 )}
+                {!isLocal && (
+                  <Button
+                    className="mt-[0.5rem] w-full"
+                    onPress={() => {
+                      setDisplaySendToKindleModal(true);
+                    }}
+                  >
+                    <BookOpenIcon className="w-4 h-4" />
+                    {t("common.sendToKindle")}
+                  </Button>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
-      <AddToCollectionModal
-        entityId={entity.id}
-        displayModal={displayAddToCollectionModal}
-        setDisplayModal={setDisplayAddToCollectionModal}
-      />
-      <ManageTagsModal
-        libraryId={libraryId || 0}
-        entityId={entity.id}
-        tags={entity.tags || []}
-        displayModal={displayTagsModal}
-        setDisplayModal={setDisplayTagsModal}
-      />
+      {displayAddToCollectionModal && (
+        <AddToCollectionModal
+          entityId={entity.id}
+          displayModal={displayAddToCollectionModal}
+          setDisplayModal={setDisplayAddToCollectionModal}
+        />
+      )}
+      {displayTagsModal && (
+        <ManageTagsModal
+          libraryId={libraryId || 0}
+          entityId={entity.id}
+          tags={entity.tags || []}
+          displayModal={displayTagsModal}
+          setDisplayModal={setDisplayTagsModal}
+        />
+      )}
+      {displaySendToKindleModal && (
+        <SendToKindleModal
+          libraryId={libraryId || 0}
+          entityId={entity.id}
+          fileName={(entity as Book).file_name}
+          displayModal={displaySendToKindleModal}
+          setDisplayModal={setDisplaySendToKindleModal}
+        />
+      )}
     </>
   );
 }
