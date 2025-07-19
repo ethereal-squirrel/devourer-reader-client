@@ -37,7 +37,12 @@
     "tag": "Tag",
     "addTagSuccess": "Tag added successfully.",
     "addTagError": "Failed to add tag.",
-    "deleteTagError": "Failed to delete tag."
+    "deleteTagError": "Failed to delete tag.",
+    "sendToKindle": "Send to Kindle",
+    "sendToKindleSuccess": "Email sent successfully.",
+    "sendToKindleError": "Failed to send email.",
+    "kindleEmail": "Kindle email",
+    "kindleDescription": "You must add kindle@devourer.app to your approved Kindle email list."
   },
   "server": {
     "error": "Failed to connect to server. Please check your server URL and try again."

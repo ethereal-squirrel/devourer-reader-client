@@ -20,6 +20,49 @@ export function useShared() {
     }))
   );
 
+  const sendToKindle = async (
+    libraryId: number,
+    entityId: number,
+    email: string,
+    fileName: string
+  ) => {
+    try {
+      const fileResponse = await fetch(
+        `${server}/stream/${libraryId}/${entityId}`
+      );
+
+      const fileData = await fileResponse.blob();
+
+      if (fileData.size > 39000000) {
+        return { status: false, message: "File is too large." };
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileData, fileName);
+
+      const response = await fetch(
+        `https://kindle.devourer.app/send-to-kindle?email=${email}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      console.log(data);
+
+      if (data.status) {
+        return { status: true };
+      }
+
+      return { status: false, message: "Failed to send email." };
+    } catch (error) {
+      console.error("sendToKindle error:", error);
+      return { status: false, message: "Failed to send email." };
+    }
+  };
+
   const pageEvent = async (
     page: number | string,
     isLocal: boolean,
@@ -234,5 +277,6 @@ export function useShared() {
     rateEntity,
     addTag,
     deleteTag,
+    sendToKindle,
   };
 }
