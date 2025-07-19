@@ -8,6 +8,7 @@ import Button from "../components/atoms/Button";
 import BookDescription from "../components/molecules/book/BookDescription";
 import BookInfo from "../components/molecules/book/BookInfo";
 import EntityNav from "../components/molecules/common/EntityNav";
+import EntityRating from "../components/molecules/common/EntityRating";
 import { LoadingState } from "../components/organisms/common/LoadingState";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
@@ -81,6 +82,18 @@ export default function BookScreen() {
                       />
                     )}
                   </div>
+                  <EntityRating
+                    series={book}
+                    retrieveSeries={() => {
+                      if (isLocal) {
+                        retrieveLocalBook(Number(id), localServer || "");
+                      } else {
+                        if (id) {
+                          retrieveBook(Number(id));
+                        }
+                      }
+                    }}
+                  />
                   <BookInfo book={book} />
                 </div>
                 <div className="w-full md:col-span-3">

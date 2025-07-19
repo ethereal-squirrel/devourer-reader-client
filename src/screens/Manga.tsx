@@ -3,18 +3,19 @@ import { useShallow } from "zustand/react/shallow";
 import { useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
+import EntityNav from "../components/molecules/common/EntityNav";
+import EntityRating from "../components/molecules/common/EntityRating";
 import AuthorsGenres from "../components/molecules/manga/AuthorsGenres";
 import FileCard from "../components/molecules/manga/FileCard";
 import MangaDescription from "../components/molecules/manga/MangaDescription";
 import MangaInfo from "../components/molecules/manga/MangaInfo";
+import MangaTitles from "../components/molecules/manga/MangaTitles";
 import { LoadingState } from "../components/organisms/common/LoadingState";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
 import { useManga, Series, File } from "../hooks/useManga";
 import { useImageLoader } from "../hooks/useImageLoader";
 import { useLibraryStore } from "../store/library";
-import EntityNav from "../components/molecules/common/EntityNav";
-import MangaTitles from "../components/molecules/manga/MangaTitles";
 
 export default function MangaScreen() {
   const { t } = useTranslation();
@@ -84,6 +85,18 @@ export default function MangaScreen() {
                       />
                     )}
                   </div>
+                  <EntityRating
+                    series={series}
+                    retrieveSeries={() => {
+                      if (isLocal) {
+                        retrieveLocalSeries(Number(id), localServer || "");
+                      } else {
+                        if (id) {
+                          retrieveSeries(Number(id));
+                        }
+                      }
+                    }}
+                  />
                   <AuthorsGenres series={series} />
                   <MangaTitles series={series} />
                   <MangaInfo series={series} />

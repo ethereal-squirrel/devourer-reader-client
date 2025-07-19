@@ -3,9 +3,10 @@ import { ask } from "@tauri-apps/plugin-dialog";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "react-toastify";
 
-import { Library } from "./useLibrary";
 import { useEntityFilter } from "./useEntityFilter";
 import { useImport } from "./useImport";
+import { Library } from "./useLibrary";
+import { useRequest } from "./useRequest";
 import { db } from "../lib/database";
 import { useCommonStore } from "../store/common";
 import { useLibraryStore } from "../store/library";
@@ -22,10 +23,12 @@ export interface Book {
   is_read: boolean;
   library_id: number | null;
   metadata: any;
+  rating?: number;
 }
 
 export function useBook() {
   const { addToQueue, removeBook } = useImport();
+  const { makeRequest } = useRequest();
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
@@ -67,30 +70,32 @@ export function useBook() {
           return null;
         }
 
-        const book =
-          libraryData &&
-          libraryData.series.find((series) => series.id === bookId);
+        const { series } = await makeRequest(
+          `/series/${libraryData && libraryData.id}/${bookId}`,
+          "GET",
+          null,
+          true
+        );
 
-        if (book) {
-          if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
-            const existingBook = await db.select(
-              "SELECT * FROM BookFile WHERE file_id = ? AND server = ?",
-              [bookId, server]
-            );
-
-            if (existingBook && existingBook.length > 0) {
-              setOfflineAvailability(true);
-            } else {
-              setOfflineAvailability(false);
-            }
-          }
-          setBook(book as Book);
-          return book;
-        } else {
-          setOfflineAvailability(false);
+        if (!series) {
           setBook(null);
-          return null;
+          throw new Error("Failed to fetch book");
         }
+
+        if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
+          const existingBook = await db.select(
+            "SELECT * FROM BookFile WHERE file_id = ? AND server = ?",
+            [bookId, server]
+          );
+
+          if (existingBook && existingBook.length > 0) {
+            setOfflineAvailability(true);
+          } else {
+            setOfflineAvailability(false);
+          }
+        }
+        setBook(series as Book);
+        return series;
       }
     },
     [libraryData]

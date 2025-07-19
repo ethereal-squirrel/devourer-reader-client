@@ -160,11 +160,38 @@ export function useShared() {
     }
   };
 
+  const rateEntity = async (
+    libraryId: number,
+    entityId: number,
+    rating: number
+  ) => {
+    const response = await makeRequest(
+      `/rate/${libraryId}/${entityId}`,
+      "POST",
+      { rating }
+    );
+
+    if (!response) {
+      toast.error(t("common.error"), {
+        style: {
+          backgroundColor: "#111827",
+          color: "#fff",
+        },
+        position: "bottom-right",
+      });
+
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   return {
     markAsRead,
     getImagePath,
     imagePath,
     updateMetadata,
     pageEvent,
+    rateEntity,
   };
 }
