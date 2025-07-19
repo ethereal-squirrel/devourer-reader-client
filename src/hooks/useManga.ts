@@ -47,8 +47,13 @@ export function useManga() {
     useState<boolean>(false);
   const [series, setSeries] = useState<Series | null>(null);
   const { makeRequest } = useRequest();
-  const { addToQueue, removeSeries, removeFile, initializeFolder, downloadCoverImage } =
-    useImport();
+  const {
+    addToQueue,
+    removeSeries,
+    removeFile,
+    initializeFolder,
+    downloadCoverImage,
+  } = useImport();
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
@@ -64,9 +69,15 @@ export function useManga() {
   const {
     filter: filterManga,
     setFilter: setFilterManga,
+    filterBy: filterMangaBy,
+    setFilterBy: setFilterMangaBy,
     filteredItems: filteredMangaSeries,
   } = useEntityFilter<Series>((libraryData?.series || []) as Series[], {
-    searchFields: ["title"],
+    searchFields: [
+      "title",
+      (item: Series) => item.manga_data?.authors || [],
+      (item: Series) => item.manga_data?.genres || [],
+    ],
     minCharacters: 3,
   });
 
@@ -383,7 +394,9 @@ export function useManga() {
     makeSeriesUnavailableOffline,
     filteredMangaSeries,
     filterManga,
+    filterMangaBy,
     setFilterManga,
+    setFilterMangaBy,
     isFileAvailableOffline,
   };
 }

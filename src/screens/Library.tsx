@@ -41,8 +41,20 @@ export default function LibraryScreen() {
     }))
   );
   const { createCollection, retrieveLibrary } = useLibrary();
-  const { filteredBookSeries, filterBook, setFilterBook } = useBook();
-  const { filteredMangaSeries, filterManga, setFilterManga } = useManga();
+  const {
+    filteredBookSeries,
+    filterBook,
+    setFilterBook,
+    filterBookBy,
+    setFilterBookBy,
+  } = useBook();
+  const {
+    filteredMangaSeries,
+    filterManga,
+    setFilterManga,
+    filterMangaBy,
+    setFilterMangaBy,
+  } = useManga();
 
   const [activeTab, setActiveTab] = useState<string>("files");
   const [filterCollections, setFilterCollections] = useState<string>("");
@@ -148,6 +160,16 @@ export default function LibraryScreen() {
                           ? setFilterBook
                           : setFilterManga
                       }
+                      filterBy={
+                        libraryData.type === "book"
+                          ? filterBookBy
+                          : filterMangaBy
+                      }
+                      setFilterBy={
+                        libraryData.type === "book"
+                          ? setFilterBookBy
+                          : setFilterMangaBy
+                      }
                       placeholder={
                         libraryData.type === "book"
                           ? "Filter by title or author..."
@@ -160,6 +182,8 @@ export default function LibraryScreen() {
                   <div className="mt-5">
                     <Filter
                       filter={filterCollections}
+                      filterBy="title"
+                      setFilterBy={(filterBy) => {}}
                       setFilter={setFilterCollections}
                       placeholder="Filter by collection name..."
                     />
