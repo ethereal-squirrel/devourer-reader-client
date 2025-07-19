@@ -183,7 +183,7 @@ export default function LibraryScreen() {
                     <Filter
                       filter={filterCollections}
                       filterBy="title"
-                      setFilterBy={(filterBy) => {}}
+                      setFilterBy={() => {}}
                       setFilter={setFilterCollections}
                       placeholder="Filter by collection name..."
                       collection
