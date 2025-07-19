@@ -128,7 +128,7 @@ export const CreateLibraryModal = memo(
           onClose();
         }
       }
-    }, [onClose, t]);
+    }, [library, onClose, t]);
 
     return (
       <Dialog
