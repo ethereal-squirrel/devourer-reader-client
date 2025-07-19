@@ -186,6 +186,7 @@ export default function LibraryScreen() {
                       setFilterBy={(filterBy) => {}}
                       setFilter={setFilterCollections}
                       placeholder="Filter by collection name..."
+                      collection
                     />
                   </div>
                 )}

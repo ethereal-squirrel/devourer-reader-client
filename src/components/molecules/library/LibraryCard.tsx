@@ -1,6 +1,7 @@
 import { memo, useCallback, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useShallow } from "zustand/react/shallow";
+import { StarIcon } from "@heroicons/react/24/solid";
 
 import { Book } from "../../../hooks/useBook";
 import { useImageLoader } from "../../../hooks/useImageLoader";
@@ -144,6 +145,20 @@ const LibraryCard = memo(
               }
             }}
           />
+          {entity.rating && entity.rating > 0 && (
+            <div className="absolute bottom-1 left-1 flex flex-row items-center gap-2 bg-black/50 rounded-full p-1">
+              {Array.from({ length: entity.rating || 0 }).map((_, index) => (
+                <StarIcon
+                  key={index}
+                  className={`w-4 h-4 ${
+                    index < (entity.rating || 0)
+                      ? "text-yellow-500"
+                      : "text-gray-500"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
           {isRead && (
             <div className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full">
               <svg
