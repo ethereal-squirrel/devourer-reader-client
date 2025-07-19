@@ -47,6 +47,7 @@ export const ManageTagsModal = memo(
 
         if (outcome) {
           await retrieveLibrary(libraryData.id);
+          setTag("");
 
           toast.success(t("common.addTagSuccess"), {
             style: {

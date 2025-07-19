@@ -85,24 +85,26 @@ export default function MangaScreen() {
                       />
                     )}
                   </div>
-                  <EntityRating
-                    series={series}
-                    retrieveSeries={() => {
-                      if (isLocal) {
-                        retrieveLocalSeries(Number(id), localServer || "");
-                      } else {
-                        if (id) {
-                          retrieveSeries(Number(id));
+                  {!isLocal && (
+                    <EntityRating
+                      series={series}
+                      retrieveSeries={() => {
+                        if (isLocal) {
+                          retrieveLocalSeries(Number(id), localServer || "");
+                        } else {
+                          if (id) {
+                            retrieveSeries(Number(id));
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  )}
                   <AuthorsGenres series={series} />
                   <MangaTitles series={series} />
                   <MangaInfo series={series} />
                 </div>
                 <div className="col-span-3 pb-[8rem]">
-                  <EntityTags tags={series.tags || []} />
+                  {!isLocal && <EntityTags tags={series.tags || []} />}
                   <MangaDescription series={series} />
                   {filesData && (filesData as File[]).length > 0 && (
                     <div className="mt-[1rem] grid grid-cols-1 md:grid-cols-5 gap-5 auto-rows-fr">

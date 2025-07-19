@@ -259,15 +259,17 @@ export default function EntityNav({
                     ? t("common.makeUnavailableOffline")
                     : t("common.makeAvailableOffline")}
                 </Button>
-                <Button
-                  className="mt-[0.5rem] w-full"
-                  onPress={() => {
-                    setDisplayTagsModal(true);
-                  }}
-                >
-                  <TagIcon className="w-4 h-4" />
-                  {t("common.manageTags")}
-                </Button>
+                {!isLocal && (
+                  <Button
+                    className="mt-[0.5rem] w-full"
+                    onPress={() => {
+                      setDisplayTagsModal(true);
+                    }}
+                  >
+                    <TagIcon className="w-4 h-4" />
+                    {t("common.manageTags")}
+                  </Button>
+                )}
               </div>
             )}
           </div>
