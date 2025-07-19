@@ -3,18 +3,20 @@ import { useShallow } from "zustand/react/shallow";
 import { useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
+import EntityNav from "../components/molecules/common/EntityNav";
+import EntityRating from "../components/molecules/common/EntityRating";
+import EntityTags from "../components/molecules/common/EntityTags";
 import AuthorsGenres from "../components/molecules/manga/AuthorsGenres";
 import FileCard from "../components/molecules/manga/FileCard";
 import MangaDescription from "../components/molecules/manga/MangaDescription";
 import MangaInfo from "../components/molecules/manga/MangaInfo";
+import MangaTitles from "../components/molecules/manga/MangaTitles";
 import { LoadingState } from "../components/organisms/common/LoadingState";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
 import { useManga, Series, File } from "../hooks/useManga";
 import { useImageLoader } from "../hooks/useImageLoader";
 import { useLibraryStore } from "../store/library";
-import EntityNav from "../components/molecules/common/EntityNav";
-import MangaTitles from "../components/molecules/manga/MangaTitles";
 
 export default function MangaScreen() {
   const { t } = useTranslation();
@@ -30,7 +32,6 @@ export default function MangaScreen() {
       libraryId: state.libraryId,
     }))
   );
-
   const shouldLoadImage =
     series && (isLocal || (libraryId !== null && libraryId !== undefined));
 
@@ -84,11 +85,26 @@ export default function MangaScreen() {
                       />
                     )}
                   </div>
+                  {!isLocal && (
+                    <EntityRating
+                      series={series}
+                      retrieveSeries={() => {
+                        if (isLocal) {
+                          retrieveLocalSeries(Number(id), localServer || "");
+                        } else {
+                          if (id) {
+                            retrieveSeries(Number(id));
+                          }
+                        }
+                      }}
+                    />
+                  )}
                   <AuthorsGenres series={series} />
                   <MangaTitles series={series} />
                   <MangaInfo series={series} />
                 </div>
                 <div className="col-span-3 pb-[8rem]">
+                  {!isLocal && <EntityTags tags={series.tags || []} />}
                   <MangaDescription series={series} />
                   {filesData && (filesData as File[]).length > 0 && (
                     <div className="mt-[1rem] grid grid-cols-1 md:grid-cols-5 gap-5 auto-rows-fr">

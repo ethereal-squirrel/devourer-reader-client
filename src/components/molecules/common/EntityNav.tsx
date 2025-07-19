@@ -8,7 +8,11 @@ import {
   PencilIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/solid";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  TagIcon,
+} from "@heroicons/react/24/solid";
 
 import Button from "../../atoms/Button";
 import { AddToCollectionModal } from "../../organisms/common/AddToCollectionModal";
@@ -17,6 +21,7 @@ import { useLibrary } from "../../../hooks/useLibrary";
 import { Series, useManga } from "../../../hooks/useManga";
 import { useAuthStore } from "../../../store/auth";
 import { useCommonStore } from "../../../store/common";
+import { ManageTagsModal } from "../../organisms/common/ManageTagsModal";
 
 export default function EntityNav({
   type,
@@ -51,6 +56,7 @@ export default function EntityNav({
   const { makeSeriesAvailableOffline, makeSeriesUnavailableOffline } =
     useManga();
   const [displayMoreOptions, setDisplayMoreOptions] = useState(false);
+  const [displayTagsModal, setDisplayTagsModal] = useState(false);
   const [displayAddToCollectionModal, setDisplayAddToCollectionModal] =
     useState(false);
 
@@ -253,6 +259,17 @@ export default function EntityNav({
                     ? t("common.makeUnavailableOffline")
                     : t("common.makeAvailableOffline")}
                 </Button>
+                {!isLocal && (
+                  <Button
+                    className="mt-[0.5rem] w-full"
+                    onPress={() => {
+                      setDisplayTagsModal(true);
+                    }}
+                  >
+                    <TagIcon className="w-4 h-4" />
+                    {t("common.manageTags")}
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -262,6 +279,13 @@ export default function EntityNav({
         entityId={entity.id}
         displayModal={displayAddToCollectionModal}
         setDisplayModal={setDisplayAddToCollectionModal}
+      />
+      <ManageTagsModal
+        libraryId={libraryId || 0}
+        entityId={entity.id}
+        tags={entity.tags || []}
+        displayModal={displayTagsModal}
+        setDisplayModal={setDisplayTagsModal}
       />
     </>
   );

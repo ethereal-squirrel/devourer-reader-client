@@ -1,10 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState, useCallback, memo } from "react";
-
-import { Library, useLibrary } from "../../../hooks/useLibrary";
-import Button from "../../atoms/Button";
 import { ask } from "@tauri-apps/plugin-dialog";
+import { XMarkIcon } from "@heroicons/react/24/solid";
+
+import Button from "../../atoms/Button";
+import { Library, useLibrary } from "../../../hooks/useLibrary";
 
 const metadataProviders = {
   book: [
@@ -117,9 +118,14 @@ export const EditLibraryModal = memo(
               transition
               className="w-full max-w-md rounded-xl bg-gray-900 text-white p-6 backdrop-blur-2xl duration-300 ease-out data-closed:transform-[scale(95%)] data-closed:opacity-0"
             >
-              <DialogTitle as="h3" className="font-semibold text-2xl">
-                {t("libraries.editRemoteLibrary")}
-              </DialogTitle>
+              <div className="flex flex-row items-center justify-between">
+                <DialogTitle as="h3" className="font-semibold text-2xl">
+                  {t("libraries.editRemoteLibrary")}
+                </DialogTitle>
+                <button className="hover:cursor-pointer" onClick={onClose}>
+                  <XMarkIcon className="w-6 h-6 text-white" />
+                </button>
+              </div>
               <div className="mt-5">
                 <label htmlFor="name" className="font-semibold">
                   {t("libraries.name")}

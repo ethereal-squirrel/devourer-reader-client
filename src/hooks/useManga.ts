@@ -20,6 +20,8 @@ export interface Series {
   library_id: number;
   manga_data: any;
   server?: string;
+  rating?: number;
+  tags?: string[];
 }
 
 export interface File {
@@ -105,29 +107,34 @@ export function useManga() {
         setFilesData(null);
         await new Promise((resolve) => setTimeout(resolve, 50));
 
-        const series = libraryData.series.find(
-          (series) => series.id === seriesId
+        const { series } = await makeRequest(
+          `/series/${libraryData && libraryData.id}/${seriesId}`,
+          "GET",
+          null,
+          true
         );
 
-        if (series) {
-          if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
-            const existingSeries = await db.select(
-              "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-              [seriesId, server]
-            );
-
-            if (existingSeries && existingSeries.length > 0) {
-              setOfflineAvailability(true);
-            } else {
-              setOfflineAvailability(false);
-            }
-          }
-          setSeries(series as Series);
-          retrieveFiles(seriesId, local);
-          return series;
-        } else {
+        if (!series) {
+          setFilesData(null);
           setSeries(null);
+          throw new Error("Failed to fetch series");
         }
+
+        if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
+          const existingSeries = await db.select(
+            "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
+            [seriesId, server]
+          );
+
+          if (existingSeries && existingSeries.length > 0) {
+            setOfflineAvailability(true);
+          } else {
+            setOfflineAvailability(false);
+          }
+        }
+        setSeries(series as Series);
+        retrieveFiles(seriesId, local);
+        return series;
       }
     },
     [libraryData]

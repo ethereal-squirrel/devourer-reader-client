@@ -3,47 +3,53 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useState, useCallback, memo } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { toast } from "react-toastify";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 import Button from "../../atoms/Button";
 import { Library, useLibrary } from "../../../hooks/useLibrary";
+import { useShared } from "../../../hooks/useShared";
 import { useLibraryStore } from "../../../store/library";
 
-export const AddToCollectionModal = memo(
+export const ManageTagsModal = memo(
   ({
+    libraryId,
     entityId,
+    tags,
     displayModal,
     setDisplayModal,
   }: {
+    libraryId: number;
     entityId: number;
+    tags: string[];
     displayModal: boolean;
     setDisplayModal: (displayModal: boolean) => void;
   }) => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
-    const [collectionId, setCollectionId] = useState<number>(0);
     const { libraryData } = useLibraryStore(
       useShallow((state) => ({
         libraryData: state.libraryData as unknown as Library,
       }))
     );
-    const { addToCollection, retrieveLibrary } = useLibrary();
+    const { retrieveLibrary } = useLibrary();
+    const { addTag, deleteTag } = useShared();
+    const [tag, setTag] = useState<string>("");
 
     const handleSubmit = useCallback(async () => {
-      if (collectionId === 0) {
+      if (tag.length < 3) {
         return;
       }
 
       setLoading(true);
 
       try {
-        const outcome = await addToCollection(collectionId, entityId);
+        const outcome = await addTag(libraryId, entityId, tag);
 
         if (outcome) {
-          setDisplayModal(false);
           await retrieveLibrary(libraryData.id);
+          setTag("");
 
-          toast.success(t("common.addToCollectionSuccess"), {
+          toast.success(t("common.addTagSuccess"), {
             style: {
               backgroundColor: "#111827",
               color: "#fff",
@@ -52,7 +58,7 @@ export const AddToCollectionModal = memo(
           });
         }
       } catch (error) {
-        toast.error(t("common.addToCollectionError"), {
+        toast.error(t("common.addTagError"), {
           style: {
             backgroundColor: "#111827",
             color: "#fff",
@@ -63,7 +69,26 @@ export const AddToCollectionModal = memo(
       } finally {
         setLoading(false);
       }
-    }, [collectionId, t]);
+    }, [tag, libraryId, entityId, t]);
+
+    const handleRemoveTag = useCallback(
+      async (tag: string) => {
+        const outcome = await deleteTag(libraryId, entityId, tag);
+
+        if (outcome) {
+          await retrieveLibrary(libraryData.id);
+        } else {
+          toast.error(t("common.deleteTagError"), {
+            style: {
+              backgroundColor: "#111827",
+              color: "#fff",
+            },
+            position: "bottom-right",
+          });
+        }
+      },
+      [tag, libraryId, entityId, t]
+    );
 
     return (
       <Dialog
@@ -83,7 +108,7 @@ export const AddToCollectionModal = memo(
             >
               <div className="flex flex-row items-center justify-between">
                 <DialogTitle as="h3" className="font-semibold text-2xl">
-                  {t("common.addToCollection")}
+                  {t("common.manageTags")}
                 </DialogTitle>
                 <button
                   className="hover:cursor-pointer"
@@ -94,32 +119,52 @@ export const AddToCollectionModal = memo(
               </div>
               <div className="mt-5">
                 <label htmlFor="type" className="font-semibold">
-                  {t("common.collection")}
+                  {t("common.tag")}
                 </label>
-                <select
-                  id="collectionId"
+                <input
+                  type="text"
                   className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
-                  value={collectionId}
+                  value={tag}
+                  maxLength={32}
                   onChange={(e) => {
-                    setCollectionId(Number(e.target.value));
+                    setTag(e.target.value);
                   }}
-                >
-                  <option value="0">{t("common.selectCollection")}</option>
-                  {libraryData.collections?.map((collection: any) => (
-                    <option key={collection.id} value={collection.id}>
-                      {collection.name}
-                    </option>
-                  ))}
-                </select>
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleSubmit();
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Button
                   className="w-full"
-                  disabled={loading || collectionId === 0}
+                  disabled={loading || tag.length < 3}
                   onPress={handleSubmit}
                 >
-                  {t("common.addToCollection")}
+                  {t("common.addTag")}
                 </Button>
+              </div>
+              <hr className="my-5" />
+              <div
+                className={`flex flex-row flex-wrap gap-2 ${
+                  tags.length === 0 ? "hidden" : ""
+                }`}
+              >
+                {tags.map((tag) => (
+                  <div
+                    key={tag}
+                    className="bg-primary text-white rounded-md px-2 py-1 text-sm font-semibold flex flex-row items-center gap-2"
+                  >
+                    {tag}
+                    <button
+                      className="bg-red-900 text-white rounded-md px-2 py-1 text-sm font-semibold hover:cursor-pointer"
+                      onClick={() => handleRemoveTag(tag)}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
             </DialogPanel>
           </div>
