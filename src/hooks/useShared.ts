@@ -186,6 +186,45 @@ export function useShared() {
     }
   };
 
+  const addTag = async (libraryId: number, entityId: number, tag: string) => {
+    const response = await makeRequest(
+      `/tag/${libraryId}/${entityId}`,
+      "POST",
+      { tag }
+    );
+
+    if (!response) {
+      toast.error(t("common.error"), {
+        style: {
+          backgroundColor: "#111827",
+          color: "#fff",
+        },
+        position: "bottom-right",
+      });
+
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  const deleteTag = async (
+    libraryId: number,
+    entityId: number,
+    tag: string
+  ) => {
+    const response = await makeRequest(
+      `/tag/${libraryId}/${entityId}/${tag}`,
+      "DELETE"
+    );
+
+    if (!response) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   return {
     markAsRead,
     getImagePath,
@@ -193,5 +232,7 @@ export function useShared() {
     updateMetadata,
     pageEvent,
     rateEntity,
+    addTag,
+    deleteTag,
   };
 }

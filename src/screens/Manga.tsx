@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import EntityNav from "../components/molecules/common/EntityNav";
 import EntityRating from "../components/molecules/common/EntityRating";
+import EntityTags from "../components/molecules/common/EntityTags";
 import AuthorsGenres from "../components/molecules/manga/AuthorsGenres";
 import FileCard from "../components/molecules/manga/FileCard";
 import MangaDescription from "../components/molecules/manga/MangaDescription";
@@ -31,7 +32,6 @@ export default function MangaScreen() {
       libraryId: state.libraryId,
     }))
   );
-
   const shouldLoadImage =
     series && (isLocal || (libraryId !== null && libraryId !== undefined));
 
@@ -102,6 +102,7 @@ export default function MangaScreen() {
                   <MangaInfo series={series} />
                 </div>
                 <div className="col-span-3 pb-[8rem]">
+                  <EntityTags tags={series.tags || []} />
                   <MangaDescription series={series} />
                   {filesData && (filesData as File[]).length > 0 && (
                     <div className="mt-[1rem] grid grid-cols-1 md:grid-cols-5 gap-5 auto-rows-fr">

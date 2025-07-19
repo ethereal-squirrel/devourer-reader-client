@@ -31,7 +31,13 @@
     "addToCollectionSuccess": "Added to collection successfully.",
     "addToCollectionError": "Failed to add to collection.",
     "deleteCollection": "Delete collection",
-    "searchJikanMetadata": "Search MyAnimeList"
+    "searchJikanMetadata": "Search MyAnimeList",
+    "manageTags": "Manage tags",
+    "addTag": "Add tag",
+    "tag": "Tag",
+    "addTagSuccess": "Tag added successfully.",
+    "addTagError": "Failed to add tag.",
+    "deleteTagError": "Failed to delete tag."
   },
   "server": {
     "error": "Failed to connect to server. Please check your server URL and try again."

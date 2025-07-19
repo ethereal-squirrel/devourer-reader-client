@@ -24,6 +24,7 @@ export interface Book {
   library_id: number | null;
   metadata: any;
   rating?: number;
+  tags?: string[];
 }
 
 export function useBook() {
