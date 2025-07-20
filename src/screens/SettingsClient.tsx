@@ -41,6 +41,8 @@ export default function SettingsClient() {
     setBookCustomForeground,
     bookCustomFontSize,
     setBookCustomFontSize,
+    bookCustomFontFamily,
+    setBookCustomFontFamily,
     mangaDirection,
     setMangaDirection,
     mangaViewMode,
@@ -57,6 +59,8 @@ export default function SettingsClient() {
       setBookCustomForeground: state.setBookCustomForeground,
       bookCustomFontSize: state.bookCustomFontSize,
       setBookCustomFontSize: state.setBookCustomFontSize,
+      bookCustomFontFamily: state.bookCustomFontFamily,
+      setBookCustomFontFamily: state.setBookCustomFontFamily,
       mangaDirection: state.mangaDirection,
       setMangaDirection: state.setMangaDirection,
       mangaViewMode: state.mangaViewMode,
@@ -167,7 +171,7 @@ export default function SettingsClient() {
                       >
                         {t("settings.bookSettings.fontSize")}
                       </label>
-                      <div>
+                      <div className="mb-2">
                         <select
                           id="book-font-size"
                           className="mt-2 w-full bg-gray-900 text-white rounded-md p-2 border border-gray-500"
@@ -183,6 +187,37 @@ export default function SettingsClient() {
                               className="bg-gray-900 text-white"
                             >
                               {size}%
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <label
+                        htmlFor="book-font-family"
+                        className="text-sm/6 font-semibold text-white"
+                      >
+                        {t("settings.bookSettings.fontFamily")}
+                      </label>
+                      <div>
+                        <select
+                          id="book-font-family"
+                          className="mt-2 w-full bg-gray-900 text-white rounded-md p-2 border border-gray-500"
+                          value={String(bookCustomFontFamily)}
+                          onChange={(e) => {
+                            setBookCustomFontFamily(e.target.value);
+                          }}
+                        >
+                          {[
+                            "Lexend",
+                            "Baskervville",
+                            "EBGaramond-Regular",
+                            "ComicNeue-Regular",
+                          ].map((family) => (
+                            <option
+                              key={family}
+                              value={family}
+                              className={`${family.toLowerCase()} bg-gray-900 text-white`}
+                            >
+                              {family}
                             </option>
                           ))}
                         </select>
