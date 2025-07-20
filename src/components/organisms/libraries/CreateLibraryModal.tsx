@@ -6,34 +6,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
 import { Library, useLibrary } from "../../../hooks/useLibrary";
+import { useRequest } from "../../../hooks/useRequest";
 import { useCommonStore } from "../../../store/common";
-
-const metadataProviders = {
-  book: [
-    {
-      label: "Google Books",
-      value: "googlebooks",
-      keyRequired: false,
-    },
-    {
-      label: "OpenLibrary",
-      value: "openlibrary",
-      keyRequired: false,
-    },
-  ],
-  manga: [
-    {
-      label: "ComicVine",
-      value: "comicvine",
-      keyRequired: true,
-    },
-    {
-      label: "Jikan (MyAnimeList)",
-      value: "myanimelist",
-      keyRequired: false,
-    },
-  ],
-};
 
 export const CreateLibraryModal = memo(
   ({
@@ -47,13 +21,14 @@ export const CreateLibraryModal = memo(
   }) => {
     const { t } = useTranslation();
     const { importLibrary } = useLibrary();
+    const { makeRequest } = useRequest();
     const { serverVersion } = useCommonStore(
       useShallow((state) => ({
         serverVersion: state.serverVersion,
       }))
     );
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isCalibreSupported, setIsCalibreSupported] = useState(false);
     const [library, setLibrary] = useState<Library>({
       id: 0,
       name: "",
@@ -65,7 +40,25 @@ export const CreateLibraryModal = memo(
       type: "manga",
       series: [],
     });
-    const [isCalibreSupported, setIsCalibreSupported] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [providers, setProviders] = useState<null | any>(null);
+
+    useEffect(() => {
+      if (!providers) {
+        const getProviders = async () => {
+          const { status, providers } = await makeRequest(
+            "/metadata/providers",
+            "GET"
+          );
+
+          if (status) {
+            setProviders(Object.values(providers));
+          }
+        };
+
+        getProviders();
+      }
+    }, [makeRequest]);
 
     useEffect(() => {
       if (serverVersion && serverVersion >= "1.1.0") {
@@ -233,36 +226,44 @@ export const CreateLibraryModal = memo(
                     })
                   }
                 >
-                  {metadataProviders[library.type].map((provider) => (
-                    <option key={provider.value} value={provider.value}>
-                      {provider.label}
-                    </option>
-                  ))}
+                  {providers &&
+                    providers
+                      .filter(
+                        (provider: any) =>
+                          provider.properties.library_type === library.type
+                      )
+                      .map((provider: any) => (
+                        <option key={provider.key} value={provider.key}>
+                          {provider.name}
+                        </option>
+                      ))}
                 </select>
-                {metadataProviders[library.type].find(
-                  (provider) => provider.value === library.metadata?.provider
-                )?.keyRequired && (
-                  <>
-                    <label htmlFor="path" className="font-semibold">
-                      {t("libraries.metadataApiKey")}
-                    </label>
-                    <input
-                      type="text"
-                      id="path"
-                      className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
-                      value={library.metadata?.apiKey}
-                      onChange={(e) =>
-                        setLibrary({
-                          ...library,
-                          metadata: {
-                            ...library.metadata,
-                            apiKey: e.target.value,
-                          },
-                        })
-                      }
-                    />
-                  </>
-                )}
+                {providers &&
+                  providers.find(
+                    (provider: any) =>
+                      provider.key === library.metadata?.provider
+                  )?.properties.key_required && (
+                    <>
+                      <label htmlFor="path" className="font-semibold">
+                        {t("libraries.metadataApiKey")}
+                      </label>
+                      <input
+                        type="text"
+                        id="path"
+                        className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
+                        value={library.metadata?.apiKey}
+                        onChange={(e) =>
+                          setLibrary({
+                            ...library,
+                            metadata: {
+                              ...library.metadata,
+                              apiKey: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </>
+                  )}
               </div>
               {error && (
                 <div
