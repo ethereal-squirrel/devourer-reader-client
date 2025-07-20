@@ -19,6 +19,7 @@ import {
   DocumentPlusIcon,
   MagnifyingGlassIcon,
   MagnifyingGlassPlusIcon,
+  PhotoIcon,
 } from "@heroicons/react/24/solid";
 
 import { db } from "../lib/database";
@@ -73,6 +74,7 @@ export default function MangaReadScreen() {
   const [manga, setManga] = useState<File | null>(null);
   const [page, setPage] = useState<number>(1);
   const [pages, setPages] = useState<string[]>([]);
+  const [isGrayscale, setIsGrayscale] = useState<boolean>(false);
 
   const getNextFile = async (fileId: number) => {
     let url: string | null = null;
@@ -597,6 +599,16 @@ export default function MangaReadScreen() {
                 );
               }
             )}
+            {renderButton(
+              isGrayscale ? (
+                <PhotoIcon className="size-4 text-gray-500" />
+              ) : (
+                <PhotoIcon className="size-4" />
+              ),
+              () => {
+                setIsGrayscale(!isGrayscale);
+              }
+            )}
             {renderButton(<Cog6ToothIcon className="size-4" />, () => {
               setDisplaySettings(!displaySettings);
             })}
@@ -684,6 +696,12 @@ export default function MangaReadScreen() {
                         src={pages[page - 1]}
                         alt="Manga Page"
                         className="w-full"
+                        style={{
+                          filter: isGrayscale ? "grayscale(100%)" : "none",
+                          WebkitFilter: isGrayscale
+                            ? "grayscale(100%)"
+                            : "none",
+                        }}
                       />
                     </TransformComponent>
                   </TransformWrapper>
@@ -696,6 +714,10 @@ export default function MangaReadScreen() {
                         ? "w-full h-full object-contain"
                         : "object-fit"
                     }`}
+                    style={{
+                      filter: isGrayscale ? "grayscale(100%)" : "none",
+                      WebkitFilter: isGrayscale ? "grayscale(100%)" : "none",
+                    }}
                   />
                 )}
               </div>
@@ -719,6 +741,8 @@ export default function MangaReadScreen() {
                         marginLeft:
                           mangaFitMode === "contain" ? "auto" : "auto",
                         marginRight: mangaFitMode === "contain" ? 0 : 0,
+                        filter: isGrayscale ? "grayscale(100%)" : "none",
+                        WebkitFilter: isGrayscale ? "grayscale(100%)" : "none",
                       }}
                     />
                   )}
@@ -735,6 +759,8 @@ export default function MangaReadScreen() {
                         marginLeft: mangaFitMode === "contain" ? 0 : 0,
                         marginRight:
                           mangaFitMode === "contain" ? "auto" : "auto",
+                        filter: isGrayscale ? "grayscale(100%)" : "none",
+                        WebkitFilter: isGrayscale ? "grayscale(100%)" : "none",
                       }}
                     />
                   )}
