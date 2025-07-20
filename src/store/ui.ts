@@ -13,6 +13,8 @@ export interface UIState {
   setBookCustomForeground: (bookCustomForeground: string) => void;
   bookCustomFontSize: number;
   setBookCustomFontSize: (bookCustomFontSize: number) => void;
+  bookCustomFontFamily: string;
+  setBookCustomFontFamily: (bookCustomFontFamily: string) => void;
   libraryPosition: number;
   setLibraryPosition: (libraryPosition: number) => void;
   libraryOfflinePosition: number;
@@ -44,6 +46,9 @@ export const useUIStore = create<UIState>()(
       bookCustomFontSize: 100,
       setBookCustomFontSize: (bookCustomFontSize: number) =>
         set({ bookCustomFontSize }),
+      bookCustomFontFamily: "Lexend",
+      setBookCustomFontFamily: (bookCustomFontFamily: string) =>
+        set({ bookCustomFontFamily }),
       libraryPosition: 0,
       setLibraryPosition: (libraryPosition: number) => set({ libraryPosition }),
       libraryOfflinePosition: 0,
@@ -73,6 +78,7 @@ export const useUIStore = create<UIState>()(
         bookCustomBackground: state.bookCustomBackground,
         bookCustomForeground: state.bookCustomForeground,
         bookCustomFontSize: state.bookCustomFontSize,
+        bookCustomFontFamily: state.bookCustomFontFamily,
         libraryPosition: state.libraryPosition,
         libraryOfflinePosition: state.libraryOfflinePosition,
         mangaDirection: state.mangaDirection,

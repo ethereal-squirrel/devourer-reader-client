@@ -180,7 +180,8 @@
       "defaultTheme": "Default theme",
       "customBackground": "Custom background",
       "customForeground": "Custom text color",
-      "fontSize": "Font size"
+      "fontSize": "Font size",
+      "fontFamily": "Font family"
     },
     "mangaSettings": {
       "title": "Manga & comics settings",

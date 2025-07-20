@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  BookOpenIcon,
   MinusIcon,
   PlusIcon,
   SunIcon,
@@ -30,6 +31,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
 ).toString();
+
+const availableFonts = [
+  "Lexend",
+  "ComicNeue-Regular",
+  "EBGaramond-Regular",
+  "Baskervville",
+];
 
 export default function BookReadScreen() {
   const { t } = useTranslation();
@@ -64,6 +72,8 @@ export default function BookReadScreen() {
     bookCustomBackground,
     bookCustomForeground,
     bookCustomFontSize,
+    bookCustomFontFamily,
+    setBookCustomFontFamily,
     setBookTheme,
     setBookCustomFontSize,
   } = useUIStore(
@@ -72,6 +82,8 @@ export default function BookReadScreen() {
       bookCustomBackground: state.bookCustomBackground,
       bookCustomForeground: state.bookCustomForeground,
       bookCustomFontSize: state.bookCustomFontSize,
+      bookCustomFontFamily: state.bookCustomFontFamily,
+      setBookCustomFontFamily: state.setBookCustomFontFamily,
       setBookTheme: state.setBookTheme,
       setBookCustomFontSize: state.setBookCustomFontSize,
     }))
@@ -89,6 +101,7 @@ export default function BookReadScreen() {
   const toc = useRef<any[]>([]);
   const footerRef = useRef<HTMLDivElement>(null);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
+  const stylesInjected = useRef<boolean>(false);
 
   const customTheme = {
     ...ReactReaderStyle,
@@ -596,6 +609,76 @@ export default function BookReadScreen() {
     }
   }, [bookTheme]);
 
+  useEffect(() => {
+    if (bookPath && bookCustomFontFamily) {
+      let retryCount = 0;
+      const maxRetries = 50;
+
+      const waitForIframe = () => {
+        const iframe = document.querySelector("iframe");
+
+        if (iframe && iframe.contentWindow?.document.head) {
+          const head = iframe.contentWindow.document.head;
+
+          const existingStyles = head.querySelectorAll(
+            "style[data-epub-font-injection]"
+          );
+          existingStyles.forEach((style) => style.remove());
+
+          const style = document.createElement("style");
+          style.setAttribute("data-epub-font-injection", "true");
+          style.textContent = `
+            @font-face {
+              font-family: "Lexend";
+              src: url("/fonts/Lexend/Lexend-VariableFont_wght.ttf") format("truetype");
+              font-weight: 100 900;
+              font-stretch: 75% 100%;
+              font-style: normal;
+            }
+            @font-face {
+              font-family: "ComicNeue-Regular";
+              src: url("/fonts/Comic_Neue/ComicNeue-Regular.ttf") format("truetype");
+              font-weight: 100 900;
+              font-stretch: 75% 100%;
+              font-style: normal;
+            }
+            @font-face {
+              font-family: "EBGaramond-Regular";
+              src: url("/fonts/EB_Garamond/EBGaramond-VariableFont_wght.ttf") format("truetype");
+              font-weight: 100 900;
+              font-stretch: 75% 100%;
+              font-style: normal;
+            }
+            @font-face {
+              font-family: "Baskervville";
+              src: url("/fonts/Baskervville/Baskervville-VariableFont_wght.ttf") format("truetype");
+              font-weight: 100 900;
+              font-stretch: 75% 100%;
+              font-style: normal;
+            }
+            h1 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            h2 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            h3 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            h4 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            h5 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            h6 { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+            p { font-family: ${bookCustomFontFamily}, system-ui, -apple-system, sans-serif !important; }
+          `;
+          head.appendChild(style);
+          stylesInjected.current = true;
+        } else if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(waitForIframe, 100);
+        }
+      };
+
+      stylesInjected.current = false;
+      const timeoutId = setTimeout(waitForIframe, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [bookPath, bookCustomFontFamily]);
+
   const renderButton = (icon: React.ReactNode, onClick: () => void) => {
     return (
       <button
@@ -653,6 +736,13 @@ export default function BookReadScreen() {
 
             setBookCustomFontSize(bookCustomFontSize + 10);
           })}
+          {renderButton(<BookOpenIcon className="size-4" />, () => {
+            const currentFont = bookCustomFontFamily;
+            const currentIndex = availableFonts.indexOf(currentFont);
+            const nextIndex = (currentIndex + 1) % availableFonts.length;
+            const nextFont = availableFonts[nextIndex];
+            setBookCustomFontFamily(nextFont);
+          })}
         </div>
       </div>
       <div
@@ -661,7 +751,7 @@ export default function BookReadScreen() {
           import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
             ? "h-[calc(100vh-50px)]"
             : "h-[calc(100vh-80px)]"
-        } overflow-hidden`}
+        } overflow-hidden ${bookCustomFontFamily.toLowerCase()}`}
       >
         {book && bookPath && (
           <>
@@ -721,16 +811,16 @@ export default function BookReadScreen() {
                     rendition.current.themes.fontSize(`${bookCustomFontSize}%`);
                     rendition.current.themes.register("custom", {
                       h1: {
-                        "font-family": `Helvetica`,
+                        "font-family": `${bookCustomFontFamily}`,
                       },
                       h2: {
-                        "font-family": `Helvetica`,
+                        "font-family": `${bookCustomFontFamily}`,
                       },
                       h3: {
-                        "font-family": `Helvetica`,
+                        "font-family": `${bookCustomFontFamily}`,
                       },
                       p: {
-                        "font-family": `Helvetica`,
+                        "font-family": `${bookCustomFontFamily}`,
                       },
                     });
                     rendition.current.themes.select("custom");

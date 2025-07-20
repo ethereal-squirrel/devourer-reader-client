@@ -9,6 +9,32 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "ComicNeue-Regular";
+  src: url("/fonts/Comic_Neue/ComicNeue-Regular.ttf") format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "EBGaramond-Regular";
+  src: url("/fonts/EB_Garamond/EBGaramond-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Baskervville";
+  src: url("/fonts/Baskervville/Baskervville-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-stretch: 75% 100%;
+  font-style: normal;
+}
+
 @theme {
   --font-sans: "Lexend", system-ui, -apple-system, sans-serif;
   --font-display: "Satoshi", "sans-serif";
@@ -22,6 +48,22 @@
   --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
   --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
   /* ... */
+}
+
+.lexend {
+  font-family: "Lexend", system-ui, -apple-system, sans-serif;
+}
+
+.baskervville {
+  font-family: "Baskervville", system-ui, -apple-system, sans-serif;
+}
+
+.ebgaramond-regular {
+  font-family: "EBGaramond-Regular", system-ui, -apple-system, sans-serif;
+}
+
+.comicneue-regular {
+  font-family: "ComicNeue-Regular", system-ui, -apple-system, sans-serif;
 }
 
 /* Line clamp utility for text truncation */
