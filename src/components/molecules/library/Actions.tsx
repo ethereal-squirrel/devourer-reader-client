@@ -150,7 +150,7 @@ export default function Actions({
           )}
         </div>
       </div>
-      {libraryData?.type === "series" && roles.add_file && isOpen && (
+      {libraryData?.type === "manga" && roles.add_file && isOpen && (
         <CreateSeriesModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
       )}
       {libraryData?.type === "book" && roles.add_file && isOpen && (
