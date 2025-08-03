@@ -86,6 +86,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
+      return;
+    }
+
     const appWindow = getCurrentWindow();
 
     document

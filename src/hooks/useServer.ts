@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { load } from "@tauri-apps/plugin-store";
 import { useShallow } from "zustand/react/shallow";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
@@ -107,45 +106,18 @@ export function useServer() {
 
   useEffect(() => {
     if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
-      const checkConnection = async () => {
-        if (loading) {
-          return;
-        }
+      const url = window.location.href;
+      const serverUrl =
+        import.meta.env.VITE_PUBLIC_DEV_MODE === "1"
+          ? "http://localhost:9024"
+          : url.match(/^(https?:\/\/[^\/]+)/)?.[0];
 
-        setLoading(true);
-
-        try {
-          const url = window.location.href;
-          const serverUrl =
-            import.meta.env.VITE_PUBLIC_DEV_MODE === "1"
-              ? "http://localhost:9024"
-              : url.match(/^(https?:\/\/[^\/]+)/)?.[0];
-          setServer(serverUrl || "");
-
-          if (!serverUrl) {
-            setError(true);
-            return;
-          }
-
-          const status = await retrieveLibraries(serverUrl);
-          setLoading(false);
-
-          if (!status) {
-            setError(true);
-          }
-        } catch (error) {
-          console.error("Server connection error:", error);
-          setError(true);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      checkConnection();
+      setServer(serverUrl || "");
+      setLoading(false);
     } else {
       setLoading(false);
     }
-  }, [retrieveLibraries]);
+  }, []);
 
   const connectToServer = useCallback(
     async (username?: string, password?: string) => {
@@ -173,18 +145,14 @@ export function useServer() {
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         const safeServer = trimmedServer.replace(/[/:?&]/g, "_");
-        const store = await load("store.json", { autoSave: false });
 
-        const val = await store.get(`${safeServer}_apiKey`);
-
-        if (val || (apiKey && apiKey.length > 0)) {
+        if (apiKey && apiKey.length > 0) {
           const response = await fetch(`${trimmedServer}/status`, {
             headers: {
-              Authorization: `Bearer ${val}`,
+              Authorization: `Bearer ${apiKey}`,
             },
           });
 
-          setApiKey(val as unknown as string);
           await new Promise((resolve) => setTimeout(resolve, 50));
 
           if (response.status === 200) {
@@ -199,6 +167,11 @@ export function useServer() {
           password &&
           password.length > 0
         ) {
+          console.log("Logging in");
+          console.log(trimmedServer);
+          console.log(username);
+          console.log(password);
+
           const response = await fetch(`${trimmedServer}/login`, {
             headers: {
               "Content-Type": "application/json",
@@ -215,8 +188,6 @@ export function useServer() {
 
             if (json.status && json.token) {
               setApiKey(json.token);
-              await store.set(`${safeServer}_apiKey`, json.token);
-              await store.save();
 
               await new Promise((resolve) => setTimeout(resolve, 50));
               const outcome = await libraryRetrieval(trimmedServer);
@@ -239,6 +210,8 @@ export function useServer() {
         setDisplayAuthModal(true);
         return false;
       } catch (error) {
+        console.error("Connection error:", error);
+
         toast.error(t("server.error"), {
           style: {
             backgroundColor: "#111827",

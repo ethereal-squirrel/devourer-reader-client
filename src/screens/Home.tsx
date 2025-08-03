@@ -35,13 +35,15 @@ export default function HomeScreen() {
                   <Fragment key={provider.route}>
                     {flags.providers[
                       provider.key as keyof typeof flags.providers
-                    ] && (
-                      <ProviderButton
-                        key={provider.route}
-                        provider={provider}
-                        onClick={handleProviderClick}
-                      />
-                    )}
+                    ] &&
+                      (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM !== "web" ||
+                        provider.web) && (
+                        <ProviderButton
+                          key={provider.route}
+                          provider={provider}
+                          onClick={handleProviderClick}
+                        />
+                      )}
                   </Fragment>
                 ))}
               </div>

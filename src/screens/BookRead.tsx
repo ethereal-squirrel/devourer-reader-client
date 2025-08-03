@@ -272,14 +272,29 @@ export default function BookReadScreen() {
     opdsUrl?: string
   ) => {
     const safeServer = server?.replace(/[/:?&]/g, "_") || "";
-    const localDataDir = await appLocalDataDir();
+
+    let localDataDir = null as string | null;
+
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM !== "web") {
+      localDataDir = await appLocalDataDir();
+    }
 
     let fileName = null as string | null;
     let pathToBook = null as string | null;
 
     if (!isLocal) {
       if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
-        // @TODO: Implement.
+        if (type === "opds-pdf" || type === "opds-epub") {
+          setLocation(null);
+          setBookPath(opdsUrl || "");
+        } else {
+          setLocation(null);
+          setBookPath(
+            `${server}/stream/${(libraryData as unknown as Library)?.id}/${
+              book!.id
+            }`
+          );
+        }
       } else {
         try {
           await mkdir(`${BaseDirectory.AppLocalData}`, {
@@ -299,7 +314,7 @@ export default function BookReadScreen() {
           console.log("Downloading book from OPDS.");
 
           pathToBook = await join(
-            localDataDir,
+            localDataDir || "",
             String(BaseDirectory.AppLocalData),
             type === "opds-pdf" ? "current.pdf" : "current.epub"
           );
@@ -364,7 +379,7 @@ export default function BookReadScreen() {
             }
 
             pathToBook = await join(
-              localDataDir,
+              localDataDir || "",
               String(BaseDirectory.AppLocalData),
               safeServer,
               "books",
@@ -394,7 +409,7 @@ export default function BookReadScreen() {
             }
 
             pathToBook = await join(
-              localDataDir,
+              localDataDir || "",
               String(BaseDirectory.AppLocalData),
               fileName
             );
