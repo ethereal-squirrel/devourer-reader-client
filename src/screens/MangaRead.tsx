@@ -9,6 +9,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import JSZip from "jszip";
+import { createExtractorFromData } from "node-unrar-js";
 import {
   ArrowLeftIcon,
   ChevronDoubleLeftIcon,
@@ -79,6 +80,14 @@ export default function MangaReadScreen() {
 
   const getNextFile = async (fileId: number) => {
     let url: string | null = null;
+
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
+      pages.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    }
 
     if (isLocal) {
       url = `/manga/read-bounce?isLocal=true&server=${localServer}&fileId=${fileId}`;
@@ -192,8 +201,6 @@ export default function MangaReadScreen() {
   const downloadManga = async (manga: File, server: null | string) => {
     if (!isLocal) {
       if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
-        console.log("Well... web download.");
-
         const response = await fetch(
           `${server}/stream/${(libraryData as unknown as Library)?.id}/${
             manga.id
@@ -216,7 +223,45 @@ export default function MangaReadScreen() {
 
           setPages(imageUrls);
         } else if (manga.file_format === "rar" || manga.file_format === "cbr") {
-          // @TODO: Implement.
+          try {
+            const wasmBinary = await fetch("/unrar.wasm").then((r) =>
+              r.arrayBuffer()
+            );
+
+            const extractor = await createExtractorFromData({
+              data: new Uint8Array(arrayBuffer),
+              wasmBinary: wasmBinary,
+            });
+
+            const fileList = extractor.getFileList();
+            const allFiles = Array.from(fileList.fileHeaders);
+            const imageFiles = allFiles
+              .filter(
+                (file: any) =>
+                  !file.flags.directory &&
+                  /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(file.name)
+              )
+              .sort((a: any, b: any) =>
+                a.name.localeCompare(b.name, undefined, { numeric: true })
+              );
+
+            const imageUrls = [];
+            for (const file of imageFiles) {
+              const extracted = extractor.extract({ files: [file.name] });
+              const extractedFiles = Array.from(extracted.files);
+              const fileData = extractedFiles[0].extraction;
+
+              if (fileData) {
+                const blob = new Blob([fileData]);
+                imageUrls.push(URL.createObjectURL(blob));
+              }
+            }
+
+            setPages(imageUrls);
+          } catch (error) {
+            console.error("RAR extraction failed:", error);
+            throwLoadError("Failed to extract RAR archive.");
+          }
         }
       } else {
         console.log("Checking for offline availability.");
@@ -450,6 +495,20 @@ export default function MangaReadScreen() {
     console.error("Error loading file, please try again.");
     navigate("/");
   };
+
+  useEffect(() => {
+    return () => {
+      if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM !== "web") {
+        return;
+      }
+
+      pages.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, []);
 
   useEffect(() => {
     if (pages.length > 0) {
