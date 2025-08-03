@@ -18,7 +18,8 @@ export function useRequest() {
       method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
       body?: any,
       cache?: boolean,
-      host?: string
+      host?: string,
+      fileData?: any
     ): Promise<any> => {
       if (!useAuthStore || useAuthStore.getState().apiKey.length === 0) {
         throw new Error("Unable to access authentication server");
@@ -31,18 +32,30 @@ export function useRequest() {
       const fullUrl = host ? host + path : server + path;
       const safePath = fullUrl.replace(/[/:?&]/g, "_");
 
+      let file = null;
+
+      if (fileData) {
+        file = new FormData();
+        file.append("file", fileData);
+      }
+
+      const headers: Record<string, string> = {
+        Authorization:
+          useAuthStore.getState().apiKey.length > 0
+            ? `Bearer ${useAuthStore.getState().apiKey}`
+            : "",
+      };
+
+      if (!file) {
+        headers["Content-Type"] = "application/json";
+      }
+
       try {
         const response = await fetch(fullUrl, {
           method: method,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              useAuthStore.getState().apiKey.length > 0
-                ? `Bearer ${useAuthStore.getState().apiKey}`
-                : "",
-          },
+          headers,
           cache: "no-store",
-          body: body ? JSON.stringify(body) : undefined,
+          body: file ? file : body ? JSON.stringify(body) : undefined,
         });
 
         if (!response.ok) {

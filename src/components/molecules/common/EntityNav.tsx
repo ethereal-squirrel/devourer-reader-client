@@ -3,15 +3,16 @@ import { useNavigate } from "react-router";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowDownOnSquareIcon,
   ArrowLeftIcon,
-  PencilIcon,
   PlusIcon,
 } from "@heroicons/react/24/outline";
 import {
+  ArrowDownOnSquareIcon,
+  ArrowUpCircleIcon,
   BookOpenIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  PencilIcon,
   TagIcon,
 } from "@heroicons/react/24/solid";
 
@@ -24,6 +25,8 @@ import { useAuthStore } from "../../../store/auth";
 import { useCommonStore } from "../../../store/common";
 import { ManageTagsModal } from "../../organisms/common/ManageTagsModal";
 import { SendToKindleModal } from "../../organisms/common/SendToKindleModal";
+import { UploadMangaModal } from "../../organisms/series/UploadMangaModal";
+import { UploadBookModal } from "../../organisms/book/UploadBookModal";
 
 export default function EntityNav({
   type,
@@ -59,6 +62,8 @@ export default function EntityNav({
     useManga();
   const [displayMoreOptions, setDisplayMoreOptions] = useState(false);
   const [displayTagsModal, setDisplayTagsModal] = useState(false);
+  const [displayUploadMangaModal, setDisplayUploadMangaModal] = useState(false);
+  const [displayUploadBookModal, setDisplayUploadBookModal] = useState(false);
   const [displaySendToKindleModal, setDisplaySendToKindleModal] =
     useState(false);
   const [displayAddToCollectionModal, setDisplayAddToCollectionModal] =
@@ -286,6 +291,17 @@ export default function EntityNav({
                     {t("common.sendToKindle")}
                   </Button>
                 )}
+                {!isLocal && type !== "book" && roles.add_file && (
+                  <Button
+                    className="mt-[0.5rem] w-full"
+                    onPress={() => {
+                      setDisplayUploadMangaModal(true);
+                    }}
+                  >
+                    <ArrowUpCircleIcon className="w-4 h-4" />
+                    Upload file
+                  </Button>
+                )}
               </div>
             )}
           </div>
@@ -314,6 +330,21 @@ export default function EntityNav({
           fileName={(entity as Book).file_name}
           displayModal={displaySendToKindleModal}
           setDisplayModal={setDisplaySendToKindleModal}
+        />
+      )}
+      {displayUploadMangaModal && type === "series" && (
+        <UploadMangaModal
+          libraryId={libraryId || 0}
+          seriesId={entity.id}
+          isOpen={displayUploadMangaModal}
+          onClose={() => setDisplayUploadMangaModal(false)}
+        />
+      )}
+      {displayUploadBookModal && type === "book" && (
+        <UploadBookModal
+          libraryId={libraryId || 0}
+          isOpen={displayUploadBookModal}
+          onClose={() => setDisplayUploadBookModal(false)}
         />
       )}
     </>

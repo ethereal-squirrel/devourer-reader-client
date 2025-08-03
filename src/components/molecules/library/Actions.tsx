@@ -1,11 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 import Button from "../../atoms/Button";
 import { useLibrary } from "../../../hooks/useLibrary";
 import { useAuthStore } from "../../../store/auth";
+import { CreateSeriesModal } from "../../organisms/series/CreateSeriesModal";
+import { useLibraryStore } from "../../../store/library";
+import { UploadBookModal } from "../../organisms/book/UploadBookModal";
 
 export default function Actions({
   activeTab,
@@ -27,6 +30,12 @@ export default function Actions({
       roles: state.roles,
     }))
   );
+  const { libraryData } = useLibraryStore(
+    useShallow((state) => ({
+      libraryData: state.libraryData,
+    }))
+  ) as any;
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (libraryId && getScanStatus) {
@@ -41,35 +50,13 @@ export default function Actions({
   }, [libraryId]);
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-2 mt-5">
-      <div className="flex flex-col md:flex-row items-center gap-2 w-full">
-        <button
-          onClick={() => setActiveTab("files")}
-          className={`w-full md:w-auto flex flex-row gap-2 ${
-            activeTab === "files" ? "bg-quaternary" : "bg-primary"
-          } ${styles.button}`}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-            />
-          </svg>
-          {t("library.files")}
-        </button>
-        {!isLocal && (
+    <>
+      <div className="flex flex-col md:flex-row items-center gap-2 mt-5">
+        <div className="flex flex-col md:flex-row items-center gap-2 w-full">
           <button
-            onClick={() => setActiveTab("collections")}
+            onClick={() => setActiveTab("files")}
             className={`w-full md:w-auto flex flex-row gap-2 ${
-              activeTab === "collections" ? "bg-quaternary" : "bg-primary"
+              activeTab === "files" ? "bg-quaternary" : "bg-primary"
             } ${styles.button}`}
           >
             <svg
@@ -83,46 +70,97 @@ export default function Actions({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+                d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
               />
             </svg>
-            {t("library.collections")}
+            {t("library.files")}
           </button>
-        )}
-        {activeTab === "collections" && (
-          <Button
-            onPress={() => setDisplayCreateCollectionModal(true)}
-            className="flex flex-row gap-2 ml-auto mr-0"
-          >
-            <PlusIcon className="size-4" />
-            {t("library.createCollection")}
-          </Button>
-        )}
-      </div>
-      <div className="w-full md:w-auto">
-        {roles.add_file && (
-          <Button
-            onPress={async () => {
-              scanLibrary(libraryId);
-              await new Promise((resolve) => setTimeout(resolve, 100));
-              getScanStatus(libraryId);
-            }}
-            className="w-full md:w-[12rem]"
-            disabled={
-              scanStatus &&
+          {!isLocal && (
+            <button
+              onClick={() => setActiveTab("collections")}
+              className={`w-full md:w-auto flex flex-row gap-2 ${
+                activeTab === "collections" ? "bg-quaternary" : "bg-primary"
+              } ${styles.button}`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+                />
+              </svg>
+              {t("library.collections")}
+            </button>
+          )}
+          {activeTab === "collections" && (
+            <Button
+              onPress={() => setDisplayCreateCollectionModal(true)}
+              className="flex flex-row gap-2 ml-auto mr-0"
+            >
+              <PlusIcon className="size-4" />
+              {t("library.createCollection")}
+            </Button>
+          )}
+        </div>
+        <div className="w-full md:w-auto">
+          {roles.add_file && (
+            <Button
+              onPress={async () => {
+                setIsOpen(true);
+              }}
+              className="w-full md:w-[12rem]"
+              disabled={
+                scanStatus &&
+                scanStatus.remaining &&
+                scanStatus.remaining.length > 0
+              }
+            >
+              {libraryData?.type === "book" ? "Upload book" : "Create series"}
+            </Button>
+          )}
+        </div>
+        <div className="w-full md:w-auto">
+          {roles.add_file && (
+            <Button
+              onPress={async () => {
+                scanLibrary(libraryId);
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                getScanStatus(libraryId);
+              }}
+              className="w-full md:w-[12rem]"
+              disabled={
+                scanStatus &&
+                scanStatus.remaining &&
+                scanStatus.remaining.length > 0
+              }
+            >
+              {scanStatus &&
               scanStatus.remaining &&
               scanStatus.remaining.length > 0
-            }
-          >
-            {scanStatus &&
-            scanStatus.remaining &&
-            scanStatus.remaining.length > 0
-              ? t("library.scanInProgress")
-              : t("library.scan")}
-          </Button>
-        )}
+                ? t("library.scanInProgress")
+                : t("library.scan")}
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
+      {libraryData?.type === "series" && roles.add_file && isOpen && (
+        <CreateSeriesModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      )}
+      {libraryData?.type === "book" && roles.add_file && isOpen && (
+        <UploadBookModal
+          libraryId={libraryId}
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
