@@ -224,7 +224,11 @@ export default function MangaReadScreen() {
           setPages(imageUrls);
         } else if (manga.file_format === "rar" || manga.file_format === "cbr") {
           try {
-            const wasmBinary = await fetch("/unrar.wasm").then((r) =>
+            const wasmPath =
+              import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web"
+                ? "/client/unrar.wasm"
+                : "/unrar.wasm";
+            const wasmBinary = await fetch(wasmPath).then((r) =>
               r.arrayBuffer()
             );
 

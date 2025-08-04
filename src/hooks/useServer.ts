@@ -43,7 +43,6 @@ export function useServer() {
     );
   const { retrieveLibraries, getRoles } = useLibrary();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   const libraryRetrieval = useCallback(
     async (trimmedServer: string) => {
@@ -143,8 +142,6 @@ export function useServer() {
         }
 
         await new Promise((resolve) => setTimeout(resolve, 200));
-
-        const safeServer = trimmedServer.replace(/[/:?&]/g, "_");
 
         if (apiKey && apiKey.length > 0) {
           const response = await fetch(`${trimmedServer}/status`, {
@@ -324,7 +321,6 @@ export function useServer() {
   return {
     connectToServer,
     loading,
-    error,
     getUsers,
     createUser,
     deleteUser,

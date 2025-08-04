@@ -218,16 +218,22 @@ export default function LibrariesScreen() {
                             }
 
                             if (library.type === "book") {
-                              url = `/book/${item.series_id}/read`;
+                              url = `/book/${item.file_id}/read`;
                             } else {
+                              console.log("manga", item);
                               url = `/manga/${item.file_id}/read`;
+                              console.log("manga", url);
                             }
 
                             navigate(url);
                           }}
                         >
                           <img
-                            src={`${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`}
+                            src={
+                              item.series_id
+                                ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
+                                : `${server}/cover-image/${item.library_id}/${item.file_id}.webp`
+                            }
                             alt={item.title}
                             className="w-full h-full object-cover rounded-xl"
                           />

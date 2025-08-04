@@ -30,7 +30,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { DeepLinkHandler } from "./components/handlers/DeepLinkHandler";
 
 function App() {
-  const basePath = import.meta.env.VITE_PUBLIC_BASE_PATH ?? "/";
   const addLog = useLogStore((state) => state.addLog);
 
   useEffect(() => {
@@ -115,7 +114,11 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter basename={basePath}>
+    <BrowserRouter
+      basename={
+        import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web" ? "/client" : "/"
+      }
+    >
       <Routes>
         <Route path="/" element={<HomeScreen />} />
         <Route path="/opds" element={<OpdsScreen />} />
