@@ -8,6 +8,8 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
+import JSZip from "jszip";
+import { createExtractorFromData } from "node-unrar-js";
 import {
   ArrowLeftIcon,
   ChevronDoubleLeftIcon,
@@ -78,6 +80,14 @@ export default function MangaReadScreen() {
 
   const getNextFile = async (fileId: number) => {
     let url: string | null = null;
+
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
+      pages.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    }
 
     if (isLocal) {
       url = `/manga/read-bounce?isLocal=true&server=${localServer}&fileId=${fileId}`;
@@ -191,7 +201,72 @@ export default function MangaReadScreen() {
   const downloadManga = async (manga: File, server: null | string) => {
     if (!isLocal) {
       if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
-        // @TODO: Implement.
+        const response = await fetch(
+          `${server}/stream/${(libraryData as unknown as Library)?.id}/${
+            manga.id
+          }`
+        );
+        const arrayBuffer = await response.arrayBuffer();
+
+        if (manga.file_format === "zip" || manga.file_format === "cbz") {
+          const zip = new JSZip();
+          const contents = await zip.loadAsync(arrayBuffer);
+          const files = Object.keys(contents.files);
+          files.sort((a, b) => a.localeCompare(b));
+          const imageUrls = await Promise.all(
+            files.map(async (filename) => {
+              const file = contents.files[filename];
+              const blob = await file.async("blob");
+              return URL.createObjectURL(blob);
+            })
+          );
+
+          setPages(imageUrls);
+        } else if (manga.file_format === "rar" || manga.file_format === "cbr") {
+          try {
+            const wasmPath =
+              import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web"
+                ? "/client/unrar.wasm"
+                : "/unrar.wasm";
+            const wasmBinary = await fetch(wasmPath).then((r) =>
+              r.arrayBuffer()
+            );
+
+            const extractor = await createExtractorFromData({
+              data: new Uint8Array(arrayBuffer),
+              wasmBinary: wasmBinary,
+            });
+
+            const fileList = extractor.getFileList();
+            const allFiles = Array.from(fileList.fileHeaders);
+            const imageFiles = allFiles
+              .filter(
+                (file: any) =>
+                  !file.flags.directory &&
+                  /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(file.name)
+              )
+              .sort((a: any, b: any) =>
+                a.name.localeCompare(b.name, undefined, { numeric: true })
+              );
+
+            const imageUrls = [];
+            for (const file of imageFiles) {
+              const extracted = extractor.extract({ files: [file.name] });
+              const extractedFiles = Array.from(extracted.files);
+              const fileData = extractedFiles[0].extraction;
+
+              if (fileData) {
+                const blob = new Blob([fileData]);
+                imageUrls.push(URL.createObjectURL(blob));
+              }
+            }
+
+            setPages(imageUrls);
+          } catch (error) {
+            console.error("RAR extraction failed:", error);
+            throwLoadError("Failed to extract RAR archive.");
+          }
+        }
       } else {
         console.log("Checking for offline availability.");
 
@@ -426,6 +501,20 @@ export default function MangaReadScreen() {
   };
 
   useEffect(() => {
+    return () => {
+      if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM !== "web") {
+        return;
+      }
+
+      pages.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     if (pages.length > 0) {
       return;
     }
@@ -533,7 +622,7 @@ export default function MangaReadScreen() {
             top:
               import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                 ? "env(safe-area-inset-top)"
-                : "30px",
+                : "0px",
             zIndex: 2000,
           }}
         >
@@ -621,7 +710,7 @@ export default function MangaReadScreen() {
             top:
               import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                 ? "env(safe-area-inset-top)"
-                : "30px",
+                : "0px",
             zIndex: 2000,
           }}
         >
@@ -666,13 +755,13 @@ export default function MangaReadScreen() {
         className={`${
           import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
             ? ""
-            : "mt-[30px] h-[calc(100dvh-30px)]"
+            : "h-[calc(100dvh-0px)]"
         } flex flex-row items-center justify-between`}
         style={{
           marginTop:
             import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
               ? "env(safe-area-inset-top)"
-              : "30px",
+              : "0px",
         }}
       >
         {pages && pages.length > 0 ? (
@@ -682,7 +771,7 @@ export default function MangaReadScreen() {
                 className={`${
                   import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                     ? "manga-height"
-                    : "h-[calc(100dvh-30px)]"
+                    : "h-[calc(100dvh-0px)]"
                 } ${
                   mangaFitMode === "actual"
                     ? "flex-1"
@@ -726,7 +815,7 @@ export default function MangaReadScreen() {
                 className={`flex w-full ${
                   import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                     ? "manga-height"
-                    : "h-[calc(100dvh-30px)]"
+                    : "h-full"
                 } max-h-full max-w-full object-contain`}
               >
                 <div className="w-1/2 h-full flex items-center justify-end">
@@ -781,7 +870,7 @@ export default function MangaReadScreen() {
             bottom:
               import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile"
                 ? "env(safe-area-inset-bottom)"
-                : "30px",
+                : "0px",
             zIndex: 2000,
           }}
         >

@@ -15,6 +15,10 @@ export default function ImportHandler() {
   );
 
   useEffect(() => {
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
+      return;
+    }
+
     if (currentQueue.length > 0 && !processing) {
       processQueue();
     }

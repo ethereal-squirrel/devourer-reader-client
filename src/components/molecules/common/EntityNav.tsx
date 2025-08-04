@@ -2,10 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
-import {
-  ArrowLeftIcon,
-  PlusIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   ArrowDownOnSquareIcon,
   ArrowUpCircleIcon,
@@ -228,47 +225,51 @@ export default function EntityNav({
                     {t("common.addToCollection")}
                   </Button>
                 )}
-                <Button
-                  className="mt-[0.5rem] w-full"
-                  onPress={async () => {
-                    if (isLocal) {
-                      if (type === "book") {
-                        await makeBookUnavailableOffline({
-                          id: (entity as Book).file_id,
-                          server: localServer || "",
-                        });
-                      } else {
-                        await makeSeriesUnavailableOffline(entity as Series);
-                      }
-
-                      navigate(`/libraries`);
-                    } else {
-                      if (offlineAvailability) {
+                {import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM !== "web" && (
+                  <Button
+                    className="mt-[0.5rem] w-full"
+                    onPress={async () => {
+                      if (isLocal) {
                         if (type === "book") {
                           await makeBookUnavailableOffline({
-                            id: (entity as Book).id,
-                            server,
+                            id: (entity as Book).file_id,
+                            server: localServer || "",
                           });
                         } else {
                           await makeSeriesUnavailableOffline(entity as Series);
                         }
-                      } else {
-                        if (type === "book") {
-                          await makeBookAvailableOffline(entity as Book);
-                        } else {
-                          await makeSeriesAvailableOffline(entity as Series);
-                        }
-                      }
 
-                      await retrieveLibrary(libraryId);
-                    }
-                  }}
-                >
-                  <ArrowDownOnSquareIcon className="w-4 h-4" />
-                  {isLocal || offlineAvailability
-                    ? t("common.makeUnavailableOffline")
-                    : t("common.makeAvailableOffline")}
-                </Button>
+                        navigate(`/libraries`);
+                      } else {
+                        if (offlineAvailability) {
+                          if (type === "book") {
+                            await makeBookUnavailableOffline({
+                              id: (entity as Book).id,
+                              server,
+                            });
+                          } else {
+                            await makeSeriesUnavailableOffline(
+                              entity as Series
+                            );
+                          }
+                        } else {
+                          if (type === "book") {
+                            await makeBookAvailableOffline(entity as Book);
+                          } else {
+                            await makeSeriesAvailableOffline(entity as Series);
+                          }
+                        }
+
+                        await retrieveLibrary(libraryId);
+                      }
+                    }}
+                  >
+                    <ArrowDownOnSquareIcon className="w-4 h-4" />
+                    {isLocal || offlineAvailability
+                      ? t("common.makeUnavailableOffline")
+                      : t("common.makeAvailableOffline")}
+                  </Button>
+                )}
                 {!isLocal && (
                   <Button
                     className="mt-[0.5rem] w-full"

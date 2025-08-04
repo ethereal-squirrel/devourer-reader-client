@@ -6,6 +6,10 @@ export function useDeepLink() {
   const navigation = useNavigate();
 
   useEffect(() => {
+    if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "web") {
+      return;
+    }
+
     const setupDeepLink = async () => {
       try {
         await onOpenUrl((urls) => {
