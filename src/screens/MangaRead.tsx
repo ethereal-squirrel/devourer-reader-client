@@ -37,6 +37,7 @@ export default function MangaReadScreen() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isLocal = searchParams.get("isLocal") === "true";
+  const fromCollection = searchParams.get("fromCollection");
   const localServer = searchParams.get("server");
   const directOpen = searchParams.get("directOpen") === "true";
   const directFile = searchParams.get("directFile");
@@ -638,7 +639,11 @@ export default function MangaReadScreen() {
                 }
               }
 
-              if (directOpen) {
+              if (fromCollection) {
+                navigate(
+                  `/manga/${manga?.series_id}?fromCollection=${fromCollection}`
+                );
+              } else if (directOpen) {
                 navigate("/libraries");
               } else if (isLocal) {
                 navigate(

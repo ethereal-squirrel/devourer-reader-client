@@ -28,6 +28,8 @@ export default function Collection() {
         (collection: any) => collection.id === Number(id)
       );
 
+      console.log("collection", collection);
+
       if (collection) {
         setCollection(collection);
       }
@@ -60,6 +62,7 @@ export default function Collection() {
                     ) as Book | Series
                   }
                   offline={false}
+                  fromCollection={collection.id}
                 />
               ))}
             </div>

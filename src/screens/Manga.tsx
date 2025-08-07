@@ -24,6 +24,7 @@ export default function MangaScreen() {
   const [searchParams] = useSearchParams();
   const isLocal = searchParams.get("isLocal") === "true";
   const localServer = searchParams.get("server");
+  const fromCollection = searchParams.get("fromCollection");
   const { series, offlineAvailability, retrieveSeries, retrieveLocalSeries } =
     useManga();
   const { filesData, libraryId } = useLibraryStore(
@@ -67,6 +68,9 @@ export default function MangaScreen() {
                 isLocal={isLocal}
                 offlineAvailability={offlineAvailability}
                 localServer={localServer}
+                fromCollection={
+                  fromCollection ? Number(fromCollection) : undefined
+                }
               />
               <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-5">
                 <div>
@@ -115,6 +119,11 @@ export default function MangaScreen() {
                             entity={file}
                             offline={isLocal}
                             series={series}
+                            fromCollection={
+                              fromCollection
+                                ? Number(fromCollection)
+                                : undefined
+                            }
                           />
                         ))}
                     </div>

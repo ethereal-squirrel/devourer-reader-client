@@ -47,6 +47,7 @@ export default function BookReadScreen() {
   const localServer = searchParams.get("server");
   const opdsType = searchParams.get("opdsType");
   const opdsUrl = searchParams.get("opdsUrl");
+  const fromCollection = searchParams.get("fromCollection");
   const { retrieveBook, retrieveLocalBook } = useBook();
   const { retrieveLibrary } = useLibrary();
   const { libraryData } = useLibraryStore(
@@ -724,7 +725,11 @@ export default function BookReadScreen() {
               retrieveLibrary((libraryData as unknown as Library)?.id || 0);
             }
 
-            navigate(-1);
+            if (fromCollection) {
+              navigate(`/book/${book?.id}?fromCollection=${fromCollection}`);
+            } else {
+              navigate(-1);
+            }
           })}
         </div>
         <div className="flex flex-row items-center gap-2">

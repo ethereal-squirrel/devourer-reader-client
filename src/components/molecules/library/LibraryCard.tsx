@@ -13,9 +13,11 @@ const LibraryCard = memo(
   function LibraryCard({
     entity,
     offline,
+    fromCollection,
   }: {
     entity: Book | Series;
     offline?: boolean;
+    fromCollection?: number;
   }) {
     const { libraryData } = useLibraryStore(
       useShallow((state) => ({
@@ -57,6 +59,8 @@ const LibraryCard = memo(
       const path =
         libraryData.type === "manga"
           ? `/manga/${offline ? (entity as Series).series_id : entity.id}${
+              fromCollection ? `?fromCollection=${fromCollection}` : ""
+            }${
               offline
                 ? `?isLocal=true&server=${
                     (entity as (Book | Series) & { server: string }).server
@@ -64,6 +68,8 @@ const LibraryCard = memo(
                 : ""
             }`
           : `/book/${offline ? (entity as Book).file_id : entity.id}${
+              fromCollection ? `?fromCollection=${fromCollection}` : ""
+            }${
               offline
                 ? `?isLocal=true&server=${
                     (entity as (Book | Series) & { server: string }).server

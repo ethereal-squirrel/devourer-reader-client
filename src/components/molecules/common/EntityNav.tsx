@@ -32,6 +32,7 @@ export default function EntityNav({
   offlineAvailability,
   isLocal,
   localServer,
+  fromCollection,
 }: {
   type: "book" | "series";
   entity: Book | Series;
@@ -39,6 +40,7 @@ export default function EntityNav({
   offlineAvailability: boolean;
   isLocal?: boolean;
   localServer?: string | null;
+  fromCollection?: number;
 }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -124,14 +126,18 @@ export default function EntityNav({
           <Button
             aria-label={t("common.returnToLibrary")}
             onPress={() => {
-              if (isLocal) {
-                navigate(
-                  type === "book"
-                    ? "/library/9999?local=book"
-                    : "/library/9998?local=manga"
-                );
+              if (fromCollection) {
+                navigate(`/collection/${fromCollection}`);
               } else {
-                navigate(`/library/${libraryId}`);
+                if (isLocal) {
+                  navigate(
+                    type === "book"
+                      ? "/library/9999?local=book"
+                      : "/library/9998?local=manga"
+                  );
+                } else {
+                  navigate(`/library/${libraryId}`);
+                }
               }
             }}
           >
