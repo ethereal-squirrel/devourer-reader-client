@@ -208,7 +208,6 @@ export function useLibrary() {
       false
     );
 
-    console.log("library", response);
     if (!response.status) {
       setIsConnected(false);
       setLibraryId(null);

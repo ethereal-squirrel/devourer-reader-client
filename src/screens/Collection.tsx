@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useParams } from "react-router";
 
@@ -22,19 +22,33 @@ export default function Collection() {
   );
   const [collection, setCollection] = useState<any>(null);
 
-  useEffect(() => {
-    if (libraryData && id) {
-      const collection = (libraryData as unknown as Library).collections?.find(
-        (collection: any) => collection.id === Number(id)
-      );
+  const retrieveCollection = useCallback(() => {
+    const collection = (libraryData as unknown as Library).collections?.find(
+      (collection: any) => collection.id === Number(id)
+    );
 
-      console.log("collection", collection);
-
-      if (collection) {
-        setCollection(collection);
-      }
+    if (collection) {
+      const sortedCollection = {
+        ...collection,
+        series: collection.series
+          .map((entityId: number) => 
+            (libraryData as unknown as Library)?.series.find(
+              (series: any) => series.id === entityId
+            )
+          )
+          .filter(Boolean)
+          .sort((a: any, b: any) => (a.title || '').localeCompare(b.title || ''))
+          .map((series: any) => series.id)
+      };
+      setCollection(sortedCollection);
     }
   }, [libraryData, id]);
+
+  useEffect(() => {
+    if (libraryData && id) {
+      retrieveCollection();
+    }
+  }, [libraryData, id, retrieveCollection]);
 
   return (
     <div className="h-screen flex flex-col bg-secondary">
@@ -63,6 +77,7 @@ export default function Collection() {
                   }
                   offline={false}
                   fromCollection={collection.id}
+                  retrieveCollection={retrieveCollection}
                 />
               ))}
             </div>

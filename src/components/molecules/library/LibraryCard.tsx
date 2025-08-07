@@ -1,11 +1,11 @@
 import { memo, useCallback, useMemo, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useShallow } from "zustand/react/shallow";
-import { StarIcon } from "@heroicons/react/24/solid";
+import { StarIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 import { Book } from "../../../hooks/useBook";
 import { useImageLoader } from "../../../hooks/useImageLoader";
-import { Library } from "../../../hooks/useLibrary";
+import { Library, useLibrary } from "../../../hooks/useLibrary";
 import { Series } from "../../../hooks/useManga";
 import { useLibraryStore } from "../../../store/library";
 
@@ -14,16 +14,19 @@ const LibraryCard = memo(
     entity,
     offline,
     fromCollection,
+    retrieveCollection,
   }: {
     entity: Book | Series;
     offline?: boolean;
     fromCollection?: number;
+    retrieveCollection?: () => void;
   }) {
     const { libraryData } = useLibraryStore(
       useShallow((state) => ({
         libraryData: state.libraryData as unknown as Library,
       }))
     );
+    const { removeFromCollection, retrieveLibrary } = useLibrary();
     const navigate = useNavigate();
 
     const imageRef = useRef<HTMLImageElement>(null);
@@ -164,6 +167,35 @@ const LibraryCard = memo(
                 />
               ))}
             </div>
+          )}
+          {fromCollection && Number(fromCollection) > 0 && (
+            <button
+              className="absolute top-1 left-1 flex flex-row items-center gap-2 bg-black/50 rounded-full p-1 hover:cursor-pointer"
+              onClick={async (e) => {
+                e.stopPropagation();
+
+                let outcome = false;
+
+                if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
+                  outcome = await window.confirm(
+                    "Are you sure you want to remove this item from the collection?"
+                  );
+                } else {
+                  outcome = window.confirm(
+                    "Are you sure you want to remove this item from the collection?"
+                  );
+                }
+
+                if (outcome) {
+                  await removeFromCollection(fromCollection, entity.id);
+                  await new Promise((resolve) => setTimeout(resolve, 50));
+                  await retrieveLibrary(libraryData.id);
+                  await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+              }}
+            >
+              <XMarkIcon className="w-4 h-4 text-white" />
+            </button>
           )}
           {isRead && (
             <div className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full">
