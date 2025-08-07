@@ -31,14 +31,16 @@ export default function Collection() {
       const sortedCollection = {
         ...collection,
         series: collection.series
-          .map((entityId: number) => 
+          .map((entityId: number) =>
             (libraryData as unknown as Library)?.series.find(
               (series: any) => series.id === entityId
             )
           )
           .filter(Boolean)
-          .sort((a: any, b: any) => (a.title || '').localeCompare(b.title || ''))
-          .map((series: any) => series.id)
+          .sort((a: any, b: any) =>
+            (a.title || "").localeCompare(b.title || "")
+          )
+          .map((series: any) => series.id),
       };
       setCollection(sortedCollection);
     }
@@ -77,7 +79,6 @@ export default function Collection() {
                   }
                   offline={false}
                   fromCollection={collection.id}
-                  retrieveCollection={retrieveCollection}
                 />
               ))}
             </div>

@@ -14,12 +14,10 @@ const LibraryCard = memo(
     entity,
     offline,
     fromCollection,
-    retrieveCollection,
   }: {
     entity: Book | Series;
     offline?: boolean;
     fromCollection?: number;
-    retrieveCollection?: () => void;
   }) {
     const { libraryData } = useLibraryStore(
       useShallow((state) => ({
