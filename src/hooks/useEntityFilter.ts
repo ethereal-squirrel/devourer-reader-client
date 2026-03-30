@@ -56,7 +56,7 @@ export function useEntityFilter<T>(
 
     const searchTerm = caseSensitive ? filter : filter.toLowerCase();
 
-    return items.filter((item) => {
+    const filtered = items.filter((item) => {
       let searchValue: string | string[];
 
       if (filterBy === "title") {
