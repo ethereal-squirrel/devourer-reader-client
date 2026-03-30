@@ -47,6 +47,8 @@ export default function LibraryScreen() {
     setFilterBook,
     filterBookBy,
     setFilterBookBy,
+    sortBookBy,
+    setSortBookBy,
   } = useBook();
   const {
     filteredMangaSeries,
@@ -54,6 +56,8 @@ export default function LibraryScreen() {
     setFilterManga,
     filterMangaBy,
     setFilterMangaBy,
+    sortMangaBy,
+    setSortMangaBy,
   } = useManga();
 
   const [activeTab, setActiveTab] = useState<string>("files");
@@ -169,6 +173,14 @@ export default function LibraryScreen() {
                         libraryData.type === "book"
                           ? setFilterBookBy
                           : setFilterMangaBy
+                      }
+                      sortBy={
+                        libraryData.type === "book" ? sortBookBy : sortMangaBy
+                      }
+                      setSortBy={
+                        libraryData.type === "book"
+                          ? setSortBookBy
+                          : setSortMangaBy
                       }
                       placeholder={
                         libraryData.type === "book"

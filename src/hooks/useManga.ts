@@ -73,6 +73,8 @@ export function useManga() {
     setFilter: setFilterManga,
     filterBy: filterMangaBy,
     setFilterBy: setFilterMangaBy,
+    sortBy: sortMangaBy,
+    setSortBy: setSortMangaBy,
     filteredItems: filteredMangaSeries,
   } = useEntityFilter<Series>((libraryData?.series || []) as Series[], {
     searchFields: [
@@ -404,6 +406,8 @@ export function useManga() {
     filterMangaBy,
     setFilterManga,
     setFilterMangaBy,
+    sortMangaBy,
+    setSortMangaBy,
     isFileAvailableOffline,
   };
 }

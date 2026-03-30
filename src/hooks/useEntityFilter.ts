@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 
+export type SortOption = "name_asc" | "name_desc" | "id_asc" | "id_desc";
+
 export interface FilterConfig<T> {
   searchFields: (keyof T | ((item: T) => string | string[]))[];
   minCharacters?: number;
@@ -11,6 +13,8 @@ export interface UseEntityFilterResult<T> {
   setFilter: (filter: string) => void;
   filterBy: string;
   setFilterBy: (filterBy: string) => void;
+  sortBy: SortOption;
+  setSortBy: (sortBy: SortOption) => void;
   filteredItems: T[];
   clearFilter: () => void;
 }
@@ -21,6 +25,7 @@ export function useEntityFilter<T>(
 ): UseEntityFilterResult<T> {
   const [filter, setFilter] = useState<string>("");
   const [filterBy, setFilterBy] = useState<string>("title");
+  const [sortBy, setSortBy] = useState<SortOption>("name_asc");
   const { searchFields, minCharacters = 3, caseSensitive = false } = config;
 
   const filteredItems = useMemo(() => {
@@ -28,8 +33,25 @@ export function useEntityFilter<T>(
       return [];
     }
 
+    const sortItems = (arr: T[]) =>
+      arr.sort((a, b) => {
+        if (sortBy === "name_asc") {
+          return ((a["title" as keyof T] as unknown as string) || "").localeCompare(
+            (b["title" as keyof T] as unknown as string) || ""
+          );
+        } else if (sortBy === "name_desc") {
+          return ((b["title" as keyof T] as unknown as string) || "").localeCompare(
+            (a["title" as keyof T] as unknown as string) || ""
+          );
+        } else if (sortBy === "id_asc") {
+          return ((a["id" as keyof T] as unknown as number) || 0) - ((b["id" as keyof T] as unknown as number) || 0);
+        } else {
+          return ((b["id" as keyof T] as unknown as number) || 0) - ((a["id" as keyof T] as unknown as number) || 0);
+        }
+      });
+
     if (filter.length < minCharacters) {
-      return [...items];
+      return sortItems([...items]);
     }
 
     const searchTerm = caseSensitive ? filter : filter.toLowerCase();
@@ -107,7 +129,9 @@ export function useEntityFilter<T>(
         : searchValue.toLowerCase();
       return processedValue.includes(searchTerm);
     });
-  }, [items, filter, filterBy, searchFields, minCharacters, caseSensitive]);
+
+    return sortItems(filtered);
+  }, [items, filter, filterBy, sortBy, searchFields, minCharacters, caseSensitive]);
 
   const clearFilter = useCallback(() => {
     setFilter("");
@@ -118,6 +142,8 @@ export function useEntityFilter<T>(
     setFilter,
     filterBy,
     setFilterBy,
+    sortBy,
+    setSortBy,
     filteredItems,
     clearFilter,
   };

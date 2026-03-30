@@ -49,6 +49,8 @@ export function useBook() {
     setFilter: setFilterBook,
     filterBy: filterBookBy,
     setFilterBy: setFilterBookBy,
+    sortBy: sortBookBy,
+    setSortBy: setSortBookBy,
     filteredItems: filteredBookSeries,
   } = useEntityFilter<Book>((libraryData?.series || []) as Book[], {
     searchFields: [
@@ -258,6 +260,8 @@ export function useBook() {
     filterBookBy,
     setFilterBook,
     setFilterBookBy,
+    sortBookBy,
+    setSortBookBy,
     searchGoogleMetadata,
     selectGoogleResult,
     makeBookAvailableOffline,
