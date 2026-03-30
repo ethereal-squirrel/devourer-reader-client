@@ -137,7 +137,7 @@ export function useShared() {
         setImagePath("");
       }
     } else {
-      setImagePath(`${server}/cover-image/${libraryId}/${entity.id}.webp`);
+      setImagePath(`${server}/cover-image/${libraryId}/${entity.id}.jpg`);
     }
   };
 

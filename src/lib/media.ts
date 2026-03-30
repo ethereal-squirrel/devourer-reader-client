@@ -77,7 +77,7 @@ export const getLocalImage = async (
         "books",
         `${seriesId}`,
         "files",
-        "cover.webp"
+        "cover.jpg"
       );
 
       if (await exists(imagePath, { baseDir: BaseDirectory.AppLocalData })) {
@@ -92,7 +92,7 @@ export const getLocalImage = async (
         safeServer,
         "series",
         String(seriesId),
-        "cover.webp"
+        "cover.jpg"
       );
 
       if (await exists(imagePath, { baseDir: BaseDirectory.AppLocalData })) {

@@ -63,7 +63,7 @@ const LibraryCard = memo(
           {library.series?.map((series, idx) => (
             <div className="w-1/3" key={series.id}>
               <img
-                src={`${server}/cover-image/${library.id}/${series.id}.webp`}
+                src={`${server}/cover-image/${library.id}/${series.id}.jpg`}
                 // @ts-ignore
                 alt={library.type === "book" ? series.title : series.name}
                 className={`w-full h-full object-cover ${
@@ -78,7 +78,7 @@ const LibraryCard = memo(
         </div>
       </button>
     );
-  }
+  },
 );
 
 const LocalLibraries = memo(() => {
@@ -106,19 +106,19 @@ export default function LibrariesScreen() {
     useShallow((state) => ({
       server: state.server,
       isConnected: state.isConnected,
-    }))
+    })),
   );
   const { roles } = useAuthStore(
     useShallow((state) => ({
       roles: state.roles,
-    }))
+    })),
   );
   const { librariesData, setLibraryId, recentlyRead } = useLibraryStore(
     useShallow((state) => ({
       librariesData: state.librariesData,
       recentlyRead: state.recentlyRead,
       setLibraryId: state.setLibraryId,
-    }))
+    })),
   );
 
   const { retrieveLibraries, createLibrary, retrieveLibrary } = useLibrary();
@@ -131,6 +131,9 @@ export default function LibrariesScreen() {
 
   const handleNavigate = useCallback(
     async (libraryId: string) => {
+      console.log("libraryId", libraryId);
+      console.log("libraryData", librariesData);
+
       if (!librariesData) {
         return null;
       }
@@ -139,12 +142,12 @@ export default function LibrariesScreen() {
       retrieveLibrary(Number(libraryId));
       navigate(`/library/${libraryId}`);
     },
-    [navigate]
+    [navigate, librariesData],
   );
 
   const isMobile = useMemo(
     () => import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile",
-    []
+    [],
   );
 
   useEffect(() => {
@@ -232,7 +235,7 @@ export default function LibrariesScreen() {
                             src={
                               item.series_id
                                 ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
-                                : `${server}/cover-image/${item.library_id}/${item.file_id}.webp`
+                                : `${server}/cover-image/${item.library_id}/${item.file_id}.jpg`
                             }
                             alt={item.title}
                             className="w-full h-full object-cover rounded-xl"
@@ -288,7 +291,7 @@ export default function LibrariesScreen() {
         <EditLibraryModal
           library={
             (librariesData as unknown as Library[])?.find(
-              (l) => l.id === editLibraryId
+              (l) => l.id === editLibraryId,
             ) as Library
           }
           isOpen={displayEditModal}

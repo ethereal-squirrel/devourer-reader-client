@@ -27,7 +27,7 @@ export function useLibraryImagePreloader() {
       const cacheKeys: string[] = [];
 
       items.forEach((item) => {
-        const url = `${server}/cover-image/${libraryId}/${item.id}.webp`;
+        const url = `${server}/cover-image/${libraryId}/${item.id}.jpg`;
         const cacheKey = imageCache.generateCacheKey(
           item.id, 
           library?.type || 'book', 

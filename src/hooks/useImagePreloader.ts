@@ -110,7 +110,7 @@ export function useImagePreloader({
     preloadQueue.current = [];
 
     visibleItems.forEach((item) => {
-      const imageUrl = `${server}/cover-image/${libraryId}/${item.id}.webp`;
+      const imageUrl = `${server}/cover-image/${libraryId}/${item.id}.jpg`;
       preloadImage(imageUrl, "high");
     });
 
@@ -119,7 +119,7 @@ export function useImagePreloader({
     const nearbyItems = items.slice(expandedStart, expandedEnd);
 
     nearbyItems.forEach((item) => {
-      const imageUrl = `${server}/cover-image/${libraryId}/${item.id}.webp`;
+      const imageUrl = `${server}/cover-image/${libraryId}/${item.id}.jpg`;
       if (!preloadedImages.current.has(imageUrl)) {
         preloadImage(imageUrl, "medium");
       }
