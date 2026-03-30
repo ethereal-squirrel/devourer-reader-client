@@ -58,7 +58,7 @@ export function useImageLoader({
         (entity as File).series_id
       }/${(entity as File).id}.jpg`;
     } else {
-      return `${server}/cover-image/${libraryId}/${entity.id}.webp`;
+      return `${server}/cover-image/${libraryId}/${entity.id}.jpg`;
     }
   }, [server, libraryId, entity.id, offline]);
 

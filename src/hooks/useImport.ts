@@ -326,7 +326,7 @@ export function useImport() {
           "books",
           String(seriesId),
           "files",
-          "cover.webp"
+          "cover.jpg"
         );
       } else {
         imagePath = await join(
@@ -335,7 +335,7 @@ export function useImport() {
           safeServer,
           "series",
           String(seriesId),
-          "cover.webp"
+          "cover.jpg"
         );
       }
 
@@ -344,7 +344,7 @@ export function useImport() {
       }
 
       await invoke("download_file", {
-        url: `${server}/cover-image/${libraryId}/${seriesId}.webp`,
+        url: `${server}/cover-image/${libraryId}/${seriesId}.jpg`,
         path: imagePath,
       });
 

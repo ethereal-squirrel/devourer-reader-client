@@ -30,7 +30,7 @@ export default function CollectionCard({ collection }: { collection: any }) {
       <div className="h-[16rem] w-full relative overflow-hidden">
         {collection.series.length > 0 && (
           <img
-            src={`${server}/cover-image/${libraryData.id}/${collection.series[0]}.webp`}
+            src={`${server}/cover-image/${libraryData.id}/${collection.series[0]}.jpg`}
             alt={collection.name}
             className="w-full h-full object-cover rounded-t-xl"
           />
