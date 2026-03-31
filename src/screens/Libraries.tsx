@@ -42,23 +42,6 @@ const LibraryCard = memo(
         aria-label={`Go to ${library.name}`}
         onClick={() => onNavigate(library.id.toString())}
       >
-        <div className="absolute top-1 right-1 flex flex-row items-center justify-center">
-          <div className="h-[2.5rem] w-auto px-[1rem] flex items-center justify-center rounded-full bg-black/75 text-white text-sm font-semibold">
-            {library.seriesCount?.toLocaleString() || 0}
-          </div>
-        </div>
-        <div className="absolute top-1 left-1 flex flex-row items-center justify-center">
-          <button
-            className="rounded-full bg-black/75 text-white text-sm font-semibold h-[2.5rem] w-[2.5rem] flex items-center justify-center hover:cursor-pointer transition-all duration-300"
-            onClick={(e) => {
-              e.stopPropagation();
-              setEditLibraryId(library.id);
-              setDisplayEditModal(true);
-            }}
-          >
-            <PencilIcon className="w-4 h-4" />
-          </button>
-        </div>
         <div className="relative w-full bg-tertiary rounded-t-xl h-[16rem] flex flex-row">
           {library.series?.map((series, idx) => (
             <div className="w-1/3" key={series.id}>
@@ -72,6 +55,23 @@ const LibraryCard = memo(
               />
             </div>
           ))}
+          <div className="absolute top-1 right-1 flex flex-row items-center justify-center">
+            <div className="h-[2.5rem] w-auto px-[1rem] flex items-center justify-center rounded-full bg-black/75 text-white text-sm font-semibold">
+              {library.seriesCount?.toLocaleString() || 0}
+            </div>
+          </div>
+          <div className="absolute top-1 left-1 flex flex-row items-center justify-center">
+            <button
+              className="rounded-full bg-black/75 text-white text-sm font-semibold h-[2.5rem] w-[2.5rem] flex items-center justify-center hover:cursor-pointer transition-all duration-300"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditLibraryId(library.id);
+                setDisplayEditModal(true);
+              }}
+            >
+              <PencilIcon className="w-4 h-4" />
+            </button>
+          </div>
           <div className="absolute bottom-1 right-1 font-semibold bg-black/75 rounded-full border border-white/50 text-white text-xs px-2 py-1">
             {library.type}
           </div>
