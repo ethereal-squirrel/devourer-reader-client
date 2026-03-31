@@ -6,6 +6,7 @@ import { join, appLocalDataDir } from "@tauri-apps/api/path";
 
 import { File, Series } from "./useManga";
 import { Book } from "./useBook";
+import { AudiobookTrack, AudiobookSeries } from "./useAudiobook";
 import { useCommonStore } from "../store/common";
 import { useImportStore } from "../store/import";
 import { Library } from "./useLibrary";
@@ -22,17 +23,17 @@ export function useImport() {
         setProcessing: state.setProcessing,
         currentQueue: state.currentQueue,
         processing: state.processing,
-      }))
+      })),
     );
   const { libraryData } = useLibraryStore(
     useShallow((state) => ({
       libraryData: state.libraryData as unknown as Library,
-    }))
+    })),
   );
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
-    }))
+    })),
   );
 
   const processQueue = async () => {
@@ -51,7 +52,7 @@ export function useImport() {
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     setCurrentQueue(
-      currentQueue.filter((item) => !itemsToProcess.includes(item))
+      currentQueue.filter((item) => !itemsToProcess.includes(item)),
     );
 
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -68,9 +69,10 @@ export function useImport() {
   };
 
   const processItem = async (item: {
-    type: "book" | "series" | "file";
+    type: "book" | "series" | "file" | "audiobook-track";
     server: string;
-    entity: Book | Series | File;
+    entity: Book | Series | File | AudiobookTrack;
+    series?: AudiobookSeries;
   }) => {
     console.info("Processing item", item);
 
@@ -80,6 +82,12 @@ export function useImport() {
       return processSeries(item.entity as Series, item.server);
     } else if (item.type === "file") {
       return processFile(item.entity as File, item.server);
+    } else if (item.type === "audiobook-track") {
+      return processAudiobookTrack(
+        item.entity as AudiobookTrack,
+        item.series as AudiobookSeries,
+        item.server,
+      );
     }
 
     return false;
@@ -91,7 +99,7 @@ export function useImport() {
     try {
       const existingBook = await db.select(
         "SELECT * FROM BookFile WHERE file_id = ? AND server = ?",
-        [book.id, server]
+        [book.id, server],
       );
 
       if (existingBook && existingBook.length > 0) {
@@ -113,23 +121,6 @@ export function useImport() {
         server,
       ]);
 
-      await db.execute(
-        "INSERT INTO BookFile (file_id, title, path, file_name, file_format, total_pages, current_page, is_read, library_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          book.id,
-          book.title,
-          book.path,
-          book.file_name,
-          book.file_format,
-          book.total_pages,
-          "0",
-          book.is_read,
-          libraryData?.id,
-          JSON.stringify(book.metadata),
-          server,
-        ]
-      );
-
       const localDataDir = await appLocalDataDir();
       const safeServer = server.replace(/[/:?&]/g, "_");
 
@@ -142,7 +133,24 @@ export function useImport() {
         "books",
         String(book.id),
         "files",
-        book.file_name
+        book.file_name,
+      );
+
+      await db.execute(
+        "INSERT INTO BookFile (file_id, title, path, file_name, file_format, total_pages, current_page, is_read, library_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          book.id,
+          book.title,
+          path,
+          book.file_name,
+          book.file_format,
+          book.total_pages,
+          "0",
+          book.is_read ?? false,
+          libraryData?.id,
+          JSON.stringify(book.metadata),
+          server,
+        ],
       );
 
       await invoke("download_file", {
@@ -165,6 +173,68 @@ export function useImport() {
     console.info("Processing series", series, server);
   };
 
+  const processAudiobookTrack = async (
+    track: AudiobookTrack,
+    series: AudiobookSeries,
+    server: string,
+  ) => {
+    console.info("Attempting to process audiobook track", track);
+
+    try {
+      const existingTrack = await db.select(
+        "SELECT * FROM AudiobookFile WHERE file_id = ? AND server = ?",
+        [track.id, server],
+      );
+
+      if (existingTrack && (existingTrack as any[]).length > 0) {
+        console.info("Track already exists", existingTrack);
+        return true;
+      }
+
+      console.info("Inserting track", track);
+
+      const localDataDir = await appLocalDataDir();
+      const safeServer = server.replace(/[/:?&]/g, "_");
+
+      const path = await join(
+        localDataDir,
+        String(BaseDirectory.AppLocalData),
+        safeServer,
+        "audiobooks",
+        String(track.series_id),
+        "files",
+        track.file_name,
+      );
+
+      await db.execute(
+        "INSERT INTO AudiobookFile (file_id, path, file_name, file_format, track_number, duration_seconds, current_position_seconds, is_listened, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          track.id,
+          path,
+          track.file_name,
+          track.file_format,
+          track.track_number,
+          track.duration_seconds,
+          track.current_position_seconds ?? "0",
+          track.is_listened ?? false,
+          track.series_id,
+          JSON.stringify(track.metadata),
+          server,
+        ],
+      );
+
+      await invoke("download_file", {
+        url: `${server}/stream/${libraryData?.id}/${track.id}`,
+        path,
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error processing audiobook track", error);
+      return false;
+    }
+  };
+
   const processFile = async (file: File, server: string) => {
     console.info("Attempting to process manga file", file);
 
@@ -173,7 +243,7 @@ export function useImport() {
 
       const existingFile = await db.select(
         "SELECT * FROM MangaFile WHERE file_id = ? AND server = ?",
-        [file.id, server]
+        [file.id, server],
       );
 
       if (existingFile && existingFile.length > 0) {
@@ -182,24 +252,6 @@ export function useImport() {
       }
 
       console.info("Inserting file", file);
-
-      await db.execute(
-        "INSERT INTO MangaFile (file_id, path, file_name, file_format, volume, chapter, total_pages, current_page, is_read, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          file.id,
-          file.path,
-          file.file_name,
-          file.file_format,
-          file.volume,
-          file.chapter,
-          file.total_pages,
-          file.current_page ?? 0,
-          file.is_read,
-          file.series_id,
-          JSON.stringify(file.metadata),
-          server,
-        ]
-      );
 
       const localDataDir = await appLocalDataDir();
       const safeServer = server.replace(/[/:?&]/g, "_");
@@ -211,13 +263,35 @@ export function useImport() {
         "series",
         String(file.series_id),
         "files",
-        file.file_name
+        file.file_name,
       );
+
+      await db.execute(
+        "INSERT INTO MangaFile (file_id, path, file_name, file_format, volume, chapter, total_pages, current_page, is_read, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          file.id,
+          path,
+          file.file_name,
+          file.file_format,
+          file.volume,
+          file.chapter,
+          file.total_pages,
+          file.current_page ?? 0,
+          file.is_read ?? false,
+          file.series_id,
+          JSON.stringify(file.metadata),
+          server,
+        ],
+      );
+
+      console.log("Downloading file.");
 
       await invoke("download_file", {
         url: `${server}/stream/${libraryData?.id}/${file.id}`,
         path,
       });
+
+      console.log("File downloaded.");
 
       const imagePath = await join(
         localDataDir,
@@ -226,7 +300,7 @@ export function useImport() {
         "series",
         String(file.series_id),
         "files",
-        `${file.id}.jpg`
+        `${file.id}.jpg`,
       );
 
       await invoke("download_file", {
@@ -250,6 +324,8 @@ export function useImport() {
       path = `${BaseDirectory.AppLocalData}/${safeServer}/series/${seriesId}/files`;
     } else if (type === "book") {
       path = `${BaseDirectory.AppLocalData}/${safeServer}/books/${seriesId}/files`;
+    } else if (type === "audiobook") {
+      path = `${BaseDirectory.AppLocalData}/${safeServer}/audiobooks/${seriesId}/files`;
     }
 
     if (!path) {
@@ -268,9 +344,9 @@ export function useImport() {
 
   const addToQueue = useCallback(
     async (
-      type: "file" | "book",
-      file: Book | File,
-      series?: Series
+      type: "file" | "book" | "audiobook-track",
+      file: Book | File | AudiobookTrack,
+      series?: Series | AudiobookSeries,
     ): Promise<boolean> => {
       try {
         if (!libraryData) {
@@ -296,6 +372,15 @@ export function useImport() {
           };
 
           setCurrentQueue([...currentQueue, queueItem]);
+        } else if (type === "audiobook-track" && series) {
+          const queueItem = {
+            type: "audiobook-track",
+            entity: file,
+            series,
+            server,
+          };
+
+          setCurrentQueue([...currentQueue, queueItem]);
         }
 
         return true;
@@ -304,13 +389,13 @@ export function useImport() {
         return false;
       }
     },
-    [currentQueue, libraryData, server, setCurrentQueue]
+    [currentQueue, libraryData, server, setCurrentQueue],
   );
 
   const downloadCoverImage = async (
     type: string,
     libraryId: number,
-    seriesId: number
+    seriesId: number,
   ) => {
     let imagePath = null as string | null;
 
@@ -326,7 +411,16 @@ export function useImport() {
           "books",
           String(seriesId),
           "files",
-          "cover.jpg"
+          "cover.jpg",
+        );
+      } else if (type === "audiobook") {
+        imagePath = await join(
+          localDataDir,
+          String(BaseDirectory.AppLocalData),
+          safeServer,
+          "audiobooks",
+          String(seriesId),
+          "cover.jpg",
         );
       } else {
         imagePath = await join(
@@ -335,7 +429,7 @@ export function useImport() {
           safeServer,
           "series",
           String(seriesId),
-          "cover.jpg"
+          "cover.jpg",
         );
       }
 
@@ -361,7 +455,7 @@ export function useImport() {
 
       await db.execute(
         "DELETE FROM BookFile WHERE file_id = ? AND server = ?",
-        [bookId, server]
+        [bookId, server],
       );
 
       try {
@@ -370,7 +464,7 @@ export function useImport() {
           {
             baseDir: BaseDirectory.AppLocalData,
             recursive: true,
-          }
+          },
         );
       } catch (error) {
         console.error("Error removing folder", error);
@@ -389,7 +483,7 @@ export function useImport() {
 
       const series = await db.select(
         "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-        [seriesId, server]
+        [seriesId, server],
       );
 
       if (!series || series.length === 0) {
@@ -398,7 +492,7 @@ export function useImport() {
 
       await db.execute(
         "DELETE FROM MangaSeries WHERE series_id = ? AND server = ?",
-        [seriesId, server]
+        [seriesId, server],
       );
 
       try {
@@ -407,7 +501,7 @@ export function useImport() {
           {
             baseDir: BaseDirectory.AppLocalData,
             recursive: true,
-          }
+          },
         );
       } catch (error) {
         console.error("Error removing folder", error);
@@ -415,7 +509,7 @@ export function useImport() {
 
       await db.execute(
         "DELETE FROM MangaFile WHERE series_id = ? AND server = ?",
-        [seriesId, server]
+        [seriesId, server],
       );
 
       return true;
@@ -431,7 +525,7 @@ export function useImport() {
 
       const file = await db.select(
         "SELECT * FROM MangaFile WHERE file_id = ? AND server = ?",
-        [fileId, server]
+        [fileId, server],
       );
 
       if (!file || file.length === 0) {
@@ -440,7 +534,7 @@ export function useImport() {
 
       await db.execute(
         "DELETE FROM MangaFile WHERE file_id = ? AND server = ?",
-        [fileId, server]
+        [fileId, server],
       );
 
       try {
@@ -448,7 +542,7 @@ export function useImport() {
           `${BaseDirectory.AppLocalData}/${safeServer}/series/${file[0].series_id}/files/${file[0].file_name}`,
           {
             baseDir: BaseDirectory.AppLocalData,
-          }
+          },
         );
       } catch (error) {
         console.error("Error removing folder", error);
@@ -459,7 +553,7 @@ export function useImport() {
           `${BaseDirectory.AppLocalData}/${safeServer}/series/${file[0].series_id}/files/${file[0].file_name}.jpg`,
           {
             baseDir: BaseDirectory.AppLocalData,
-          }
+          },
         );
       } catch (error) {
         console.error("Error removing folder", error);
@@ -472,12 +566,91 @@ export function useImport() {
     }
   };
 
+  const removeAudiobookSeries = async (seriesId: number, server: string) => {
+    try {
+      const safeServer = server.replace(/[/:?&]/g, "_");
+
+      const existing = await db.select(
+        "SELECT * FROM AudiobookSeries WHERE series_id = ? AND server = ?",
+        [seriesId, server],
+      );
+
+      if (!existing || (existing as any[]).length === 0) {
+        return false;
+      }
+
+      await db.execute(
+        "DELETE FROM AudiobookSeries WHERE series_id = ? AND server = ?",
+        [seriesId, server],
+      );
+
+      await db.execute(
+        "DELETE FROM AudiobookFile WHERE series_id = ? AND server = ?",
+        [seriesId, server],
+      );
+
+      try {
+        await remove(
+          `${BaseDirectory.AppLocalData}/${safeServer}/audiobooks/${seriesId}`,
+          { baseDir: BaseDirectory.AppLocalData, recursive: true },
+        );
+      } catch (error) {
+        console.error("Error removing audiobook folder", error);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error removing audiobook series", error);
+      return false;
+    }
+  };
+
+  const removeAudiobookTrack = async (
+    fileId: number,
+    seriesId: number,
+    server: string,
+  ) => {
+    try {
+      const safeServer = server.replace(/[/:?&]/g, "_");
+
+      const file = await db.select(
+        "SELECT * FROM AudiobookFile WHERE file_id = ? AND server = ?",
+        [fileId, server],
+      );
+
+      if (!file || (file as any[]).length === 0) {
+        return false;
+      }
+
+      await db.execute(
+        "DELETE FROM AudiobookFile WHERE file_id = ? AND server = ?",
+        [fileId, server],
+      );
+
+      try {
+        await remove(
+          `${BaseDirectory.AppLocalData}/${safeServer}/audiobooks/${seriesId}/files/${(file as any[])[0].file_name}`,
+          { baseDir: BaseDirectory.AppLocalData },
+        );
+      } catch (error) {
+        console.error("Error removing audiobook track file", error);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error removing audiobook track", error);
+      return false;
+    }
+  };
+
   return {
     addToQueue,
     processQueue,
     removeBook,
     removeSeries,
     removeFile,
+    removeAudiobookSeries,
+    removeAudiobookTrack,
     initializeFolder,
     downloadCoverImage,
   };
