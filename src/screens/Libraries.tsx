@@ -59,7 +59,7 @@ const LibraryCard = memo(
             <PencilIcon className="w-4 h-4" />
           </button>
         </div>
-        <div className="w-full bg-tertiary rounded-t-xl h-[16rem] flex flex-row">
+        <div className="relative w-full bg-tertiary rounded-t-xl h-[16rem] flex flex-row">
           {library.series?.map((series, idx) => (
             <div className="w-1/3" key={series.id}>
               <img
@@ -72,6 +72,9 @@ const LibraryCard = memo(
               />
             </div>
           ))}
+          <div className="absolute bottom-1 right-1 font-semibold bg-black/75 rounded-full border border-white/50 text-white text-xs px-2 py-1">
+            {library.type}
+          </div>
         </div>
         <div className="bg-primary text-white p-5 rounded-b-xl w-full mx-auto font-semibold">
           {library.name}
