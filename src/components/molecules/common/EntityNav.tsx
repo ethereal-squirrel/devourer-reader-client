@@ -24,6 +24,7 @@ import { ManageTagsModal } from "../../organisms/common/ManageTagsModal";
 import { SendToKindleModal } from "../../organisms/common/SendToKindleModal";
 import { UploadMangaModal } from "../../organisms/series/UploadMangaModal";
 import { UploadBookModal } from "../../organisms/book/UploadBookModal";
+import { AudiobookSeries } from "../../../hooks/useAudiobook";
 
 export default function EntityNav({
   type,
@@ -35,7 +36,7 @@ export default function EntityNav({
   fromCollection,
 }: {
   type: "book" | "series";
-  entity: Book | Series;
+  entity: Book | Series | AudiobookSeries;
   libraryId: number;
   offlineAvailability: boolean;
   isLocal?: boolean;
@@ -47,12 +48,12 @@ export default function EntityNav({
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
-    }))
+    })),
   );
   const { roles } = useAuthStore(
     useShallow((state) => ({
       roles: state.roles,
-    }))
+    })),
   );
   const { retrieveLibrary } = useLibrary();
   const { makeBookAvailableOffline, makeBookUnavailableOffline } = useBook();
@@ -96,7 +97,7 @@ export default function EntityNav({
 
     if ((entity as Series).manga_data && (entity as Series).manga_data.titles) {
       const englishTitle = (entity as Series).manga_data.titles.find(
-        (title: { type: string; title: string }) => title.type === "English"
+        (title: { type: string; title: string }) => title.type === "English",
       );
 
       if (englishTitle) {
@@ -104,7 +105,7 @@ export default function EntityNav({
       }
 
       const defaultTitle = (entity as Series).manga_data.titles.find(
-        (title: { type: string; title: string }) => title.type === "Default"
+        (title: { type: string; title: string }) => title.type === "Default",
       );
 
       if (defaultTitle) {
@@ -133,7 +134,7 @@ export default function EntityNav({
                   navigate(
                     type === "book"
                       ? "/library/9999?local=book"
-                      : "/library/9998?local=manga"
+                      : "/library/9998?local=manga",
                   );
                 } else {
                   navigate(`/library/${libraryId}`);
@@ -212,7 +213,7 @@ export default function EntityNav({
                                 : (entity as Series).id
                             }/metadata${isLocal ? "?local=manga" : ""}${
                               localServer ? `&localServer=${localServer}` : ""
-                            }`
+                            }`,
                       );
                     }}
                   >
@@ -255,7 +256,7 @@ export default function EntityNav({
                             });
                           } else {
                             await makeSeriesUnavailableOffline(
-                              entity as Series
+                              entity as Series,
                             );
                           }
                         } else {

@@ -4,12 +4,13 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import { Book } from "../../../hooks/useBook";
 import { Series } from "../../../hooks/useManga";
 import { useShared } from "../../../hooks/useShared";
+import { AudiobookSeries } from "../../../hooks/useAudiobook";
 
 export default function EntityRating({
   series,
   retrieveSeries,
 }: {
-  series: Series | Book;
+  series: Series | Book | AudiobookSeries;
   retrieveSeries: () => void;
 }) {
   const [currentHover, setCurrentHover] = useState<number | null>(null);
@@ -28,7 +29,7 @@ export default function EntityRating({
               const outcome = await rateEntity(
                 series.library_id || 0,
                 series.id,
-                rating
+                rating,
               );
 
               if (outcome) {
@@ -43,8 +44,8 @@ export default function EntityRating({
                 currentHover !== null && rating <= currentHover
                   ? "text-yellow-800"
                   : series.rating && rating <= (series.rating || 0)
-                  ? "text-yellow-500"
-                  : "text-gray-600"
+                    ? "text-yellow-500"
+                    : "text-gray-600"
               }`}
             />
           </button>

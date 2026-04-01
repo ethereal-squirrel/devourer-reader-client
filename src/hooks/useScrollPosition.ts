@@ -44,12 +44,10 @@ export function useScrollPosition({
       throttleTimerRef.current = setTimeout(() => {
         const currentPosition = getCurrentPosition();
         
-        // Clear existing debounce timer
         if (debounceTimerRef.current) {
           clearTimeout(debounceTimerRef.current);
         }
         
-        // Debounce the position change callback
         debounceTimerRef.current = setTimeout(() => {
           onPositionChange(currentPosition);
         }, debounceMs);
@@ -69,7 +67,6 @@ export function useScrollPosition({
     return () => {
       targetElement.removeEventListener("scroll", handleScroll);
       
-      // Clear timers on cleanup
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }

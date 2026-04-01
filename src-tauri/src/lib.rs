@@ -328,6 +328,38 @@ pub fn run() {
                 );
             "#,
         kind: MigrationKind::Up,
+    }, Migration {
+        version: 2,
+        description: "create_audiobook_tables",
+        sql: r#"
+                CREATE TABLE AudiobookSeries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    series_id INTEGER NOT NULL,
+                    title TEXT NOT NULL,
+                    path TEXT UNIQUE NOT NULL,
+                    cover TEXT NOT NULL,
+                    library_id INTEGER NOT NULL,
+                    audiobook_data TEXT NOT NULL,
+                    total_duration_seconds INTEGER NOT NULL DEFAULT 0,
+                    server TEXT NOT NULL
+                );
+
+                CREATE TABLE AudiobookFile (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    file_id INTEGER NOT NULL,
+                    path TEXT UNIQUE NOT NULL,
+                    file_name TEXT NOT NULL,
+                    file_format TEXT NOT NULL,
+                    track_number INTEGER NOT NULL,
+                    duration_seconds INTEGER NOT NULL,
+                    current_position_seconds TEXT NOT NULL DEFAULT '0',
+                    is_listened BOOLEAN NOT NULL DEFAULT FALSE,
+                    series_id INTEGER NOT NULL,
+                    metadata TEXT NOT NULL,
+                    server TEXT NOT NULL
+                );
+            "#,
+        kind: MigrationKind::Up,
     }];
 
     let mut builder = tauri::Builder::default();

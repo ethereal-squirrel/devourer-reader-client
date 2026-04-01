@@ -16,6 +16,7 @@ import BookReadScreen from "./screens/BookRead";
 import MangaScreen from "./screens/Manga";
 import MangaMetadata from "./screens/MangaMetadata";
 import MangaReadScreen from "./screens/MangaRead";
+import AudiobookScreen from "./screens/Audiobook";
 import MangaReadBounce from "./screens/MangaReadBounce";
 import Collection from "./screens/Collection";
 import SettingsClient from "./screens/SettingsClient";
@@ -129,6 +130,7 @@ function App() {
         <Route path="/book/:id" element={<BookScreen />} />
         <Route path="/book/:id/metadata" element={<BookMetadataScreen />} />
         <Route path="/book/:id/read" element={<BookReadScreen />} />
+        <Route path="/audiobook/:id" element={<AudiobookScreen />} />
         <Route path="/manga/:id" element={<MangaScreen />} />
         <Route path="/manga/:id/metadata" element={<MangaMetadata />} />
         <Route path="/manga/:id/read" element={<MangaReadScreen />} />

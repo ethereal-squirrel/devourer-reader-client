@@ -15,10 +15,11 @@ import VirtualizedLibraryTable from "../components/organisms/VirtualizedLibraryT
 import { CreateCollectionModal } from "../components/organisms/library/CreateCollectionModal";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
-import { Book, useBook } from "../hooks/useBook";
+import { useBook } from "../hooks/useBook";
+import { useAudiobook } from "../hooks/useAudiobook";
 import { Library, useLibrary } from "../hooks/useLibrary";
 import { useLibraryImagePreloader } from "../hooks/useLibraryImagePreloader";
-import { Series, useManga } from "../hooks/useManga";
+import { useManga } from "../hooks/useManga";
 import { useLibraryStore } from "../store/library";
 import { useUIStore } from "../store/ui";
 
@@ -59,6 +60,15 @@ export default function LibraryScreen() {
     sortMangaBy,
     setSortMangaBy,
   } = useManga();
+  const {
+    filteredAudiobookSeries,
+    filterAudiobook,
+    setFilterAudiobook,
+    filterAudiobookBy,
+    setFilterAudiobookBy,
+    sortAudiobookBy,
+    setSortAudiobookBy,
+  } = useAudiobook();
 
   const [activeTab, setActiveTab] = useState<string>("files");
   const [filterCollections, setFilterCollections] = useState<string>("");
@@ -70,8 +80,12 @@ export default function LibraryScreen() {
 
   const currentSeries = useMemo(
     () =>
-      libraryData?.type === "book" ? filteredBookSeries : filteredMangaSeries,
-    [libraryData, filteredBookSeries, filteredMangaSeries]
+      libraryData?.type === "book"
+        ? filteredBookSeries
+        : libraryData?.type === "audiobook"
+        ? filteredAudiobookSeries
+        : filteredMangaSeries,
+    [libraryData, filteredBookSeries, filteredMangaSeries, filteredAudiobookSeries]
   );
 
   const shouldVirtualize = useMemo(
@@ -157,29 +171,45 @@ export default function LibraryScreen() {
                   <div className="mt-5">
                     <Filter
                       filter={
-                        libraryData.type === "book" ? filterBook : filterManga
+                        libraryData.type === "book"
+                          ? filterBook
+                          : libraryData.type === "audiobook"
+                          ? filterAudiobook
+                          : filterManga
                       }
                       setFilter={
                         libraryData.type === "book"
                           ? setFilterBook
+                          : libraryData.type === "audiobook"
+                          ? setFilterAudiobook
                           : setFilterManga
                       }
                       filterBy={
                         libraryData.type === "book"
                           ? filterBookBy
+                          : libraryData.type === "audiobook"
+                          ? filterAudiobookBy
                           : filterMangaBy
                       }
                       setFilterBy={
                         libraryData.type === "book"
                           ? setFilterBookBy
+                          : libraryData.type === "audiobook"
+                          ? setFilterAudiobookBy
                           : setFilterMangaBy
                       }
                       sortBy={
-                        libraryData.type === "book" ? sortBookBy : sortMangaBy
+                        libraryData.type === "book"
+                          ? sortBookBy
+                          : libraryData.type === "audiobook"
+                          ? sortAudiobookBy
+                          : sortMangaBy
                       }
                       setSortBy={
                         libraryData.type === "book"
                           ? setSortBookBy
+                          : libraryData.type === "audiobook"
+                          ? setSortAudiobookBy
                           : setSortMangaBy
                       }
                       placeholder={
@@ -219,15 +249,15 @@ export default function LibraryScreen() {
                               shouldVirtualize ? (
                                 <VirtualizedLibraryGrid
                                   key={`library-files-virtual-grid-${libraryData.id}-${libraryData.type}`}
-                                  items={currentSeries}
+                                  items={currentSeries as any[]}
                                   offline={
                                     local === "book" || local === "manga"
                                   }
                                 />
                               ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8 gap-5 auto-rows-fr">
-                                  {currentSeries.map(
-                                    (entity: Book | Series, index: number) => (
+                                  {(currentSeries as any[]).map(
+                                    (entity: any, index: number) => (
                                       <LibraryCard
                                         key={`library-files-card-${entity.id}-${index}-${libraryData.id}`}
                                         entity={entity}
@@ -241,13 +271,13 @@ export default function LibraryScreen() {
                               )
                             ) : shouldVirtualize ? (
                               <VirtualizedLibraryTable
-                                series={currentSeries}
+                                series={currentSeries as any[]}
                                 isLandscape={isLandscape}
                                 offline={local === "book" || local === "manga"}
                               />
                             ) : (
                               <LibraryTable
-                                series={currentSeries}
+                                series={currentSeries as any[]}
                                 isLandscape={isLandscape}
                                 offline={local === "book" || local === "manga"}
                               />

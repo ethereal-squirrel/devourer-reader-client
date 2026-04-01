@@ -19,8 +19,7 @@ export class ImageCacheManager {
   private maxImagePoolSize = 50;
 
   private constructor() {
-    // Cleanup cache periodically
-    setInterval(() => this.cleanupCache(), 5 * 60 * 1000); // Every 5 minutes
+    setInterval(() => this.cleanupCache(), 5 * 60 * 1000);
   }
 
   static getInstance(): ImageCacheManager {
@@ -32,8 +31,8 @@ export class ImageCacheManager {
 
   generateCacheKey(
     entityId: number,
-    type: "book" | "manga" | "file",
-    libraryId?: number
+    type: "book" | "manga" | "file" | "audiobook",
+    libraryId?: number,
   ): string {
     return `${type}-${entityId}-${libraryId || "local"}`;
   }
@@ -63,7 +62,6 @@ export class ImageCacheManager {
 
   private returnImageToPool(img: HTMLImageElement): void {
     if (this.imagePool.size < this.maxImagePoolSize) {
-      // Reset image state
       img.src = "";
       img.onload = null;
       img.onerror = null;
@@ -74,27 +72,24 @@ export class ImageCacheManager {
   async loadImage(
     url: string,
     cacheKey: string,
-    options: { timeout?: number; priority?: "high" | "low" } = {}
+    options: { timeout?: number; priority?: "high" | "low" } = {},
   ): Promise<string | null> {
-    // Check cache first
     const cached = this.getCachedImage(cacheKey);
     if (cached) {
       return cached;
     }
 
-    // Check if already loading
     const existingLoad = this.loadingStates.get(cacheKey);
     if (existingLoad) {
       return existingLoad.promise;
     }
 
-    // Start new load
     const abortController = new AbortController();
     const loadPromise = this.performImageLoad(
       url,
       cacheKey,
       abortController,
-      options
+      options,
     );
 
     this.loadingStates.set(cacheKey, { promise: loadPromise, abortController });
@@ -111,7 +106,7 @@ export class ImageCacheManager {
     url: string,
     cacheKey: string,
     abortController: AbortController,
-    options: { timeout?: number; priority?: "high" | "low" }
+    options: { timeout?: number; priority?: "high" | "low" },
   ): Promise<string | null> {
     return new Promise((resolve) => {
       const img = this.getOrCreateImage();
@@ -128,7 +123,6 @@ export class ImageCacheManager {
       }, timeout);
 
       img.onload = () => {
-        // Cache the successful URL
         this.setCacheEntry(cacheKey, url);
         cleanup();
         resolve(url);
@@ -139,13 +133,11 @@ export class ImageCacheManager {
         resolve(null);
       };
 
-      // Handle abort
       abortController.signal.addEventListener("abort", () => {
         cleanup();
         resolve(null);
       });
 
-      // Set priority if supported
       if ("fetchPriority" in img && options.priority) {
         (img as any).fetchPriority = options.priority;
       }
@@ -155,7 +147,6 @@ export class ImageCacheManager {
   }
 
   setCacheEntry(cacheKey: string, url: string): void {
-    // Ensure cache doesn't exceed size limit
     if (this.cache.size >= this.maxCacheSize) {
       this.evictLeastUsed();
     }
@@ -173,9 +164,8 @@ export class ImageCacheManager {
     let leastUsedScore = Infinity;
 
     for (const [key, entry] of this.cache.entries()) {
-      // Score based on access count and recency (lower is worse)
-      const ageBonus = Math.max(0, Date.now() - entry.lastAccessed) / 1000; // Age in seconds
-      const score = entry.accessCount - ageBonus / 3600; // Reduce score by 1 per hour of age
+      const ageBonus = Math.max(0, Date.now() - entry.lastAccessed) / 1000;
+      const score = entry.accessCount - ageBonus / 3600;
 
       if (score < leastUsedScore) {
         leastUsedScore = score;
@@ -190,7 +180,7 @@ export class ImageCacheManager {
 
   private cleanupCache(): void {
     const now = Date.now();
-    const maxAge = 30 * 60 * 1000; // 30 minutes
+    const maxAge = 30 * 60 * 1000;
 
     for (const [key, entry] of this.cache.entries()) {
       if (now - entry.lastAccessed > maxAge) {
@@ -225,11 +215,10 @@ export class ImageCacheManager {
     };
   }
 
-  // Preload images for library
   async preloadImages(
     urls: string[],
     cacheKeys: string[],
-    options: { batchSize?: number; delayMs?: number } = {}
+    options: { batchSize?: number; delayMs?: number } = {},
   ): Promise<void> {
     const { batchSize = 10, delayMs = 100 } = options;
 
@@ -237,14 +226,12 @@ export class ImageCacheManager {
       const batch = urls.slice(i, i + batchSize);
       const batchKeys = cacheKeys.slice(i, i + batchSize);
 
-      // Load batch in parallel
       const batchPromises = batch.map((url, idx) =>
-        this.loadImage(url, batchKeys[idx], { priority: "low", timeout: 5000 })
+        this.loadImage(url, batchKeys[idx], { priority: "low", timeout: 5000 }),
       );
 
       await Promise.allSettled(batchPromises);
 
-      // Delay between batches to avoid overwhelming the browser
       if (i + batchSize < urls.length) {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
@@ -252,5 +239,4 @@ export class ImageCacheManager {
   }
 }
 
-// Export singleton instance
 export const imageCache = ImageCacheManager.getInstance();

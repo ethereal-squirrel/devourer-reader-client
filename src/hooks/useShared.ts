@@ -68,11 +68,17 @@ export function useShared() {
     isLocal: boolean,
     libraryId: number,
     fileId: number,
-    localServer?: string
+    localServer?: string,
+    type?: "audiobook"
   ) => {
     try {
       if (isLocal && localServer) {
-        if (libraryId === 9999) {
+        if (type === "audiobook") {
+          await db.execute(
+            "UPDATE AudiobookFile SET current_position_seconds = ? WHERE id = ? AND server = ?",
+            [String(page), fileId, localServer]
+          );
+        } else if (libraryId === 9999) {
           await db.execute(
             "UPDATE BookFile SET current_page = ? WHERE file_id = ? AND server = ?",
             [page, fileId, localServer]
