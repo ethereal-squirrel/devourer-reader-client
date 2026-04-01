@@ -6,6 +6,7 @@ import { get, set, del } from "idb-keyval";
 import { Book } from "../hooks/useBook";
 import { Library } from "../hooks/useLibrary";
 import { File, Series } from "../hooks/useManga";
+import type { AudiobookTrack } from "../hooks/useAudiobook";
 import { db } from "../lib/database";
 
 export interface LibraryState {
@@ -14,7 +15,7 @@ export interface LibraryState {
   libraryPath: string | null;
   librariesData: null | Library[];
   libraryData: null | Library;
-  filesData: null | File[];
+  filesData: null | File[] | AudiobookTrack[];
   fileData: null | File;
   currentSeries: null | Series;
   currentBook: null | Book;
@@ -24,7 +25,7 @@ export interface LibraryState {
   setLibraryPath: (libraryPath: string | null) => void;
   setLibrariesData: (librariesData: Library[] | null) => void;
   setLibraryData: (libraryData: Library | null) => void;
-  setFilesData: (filesData: File[] | null) => void;
+  setFilesData: (filesData: File[] | AudiobookTrack[] | null) => void;
   setFileData: (fileData: File | null) => void;
   setCurrentSeries: (currentSeries: Series | null) => void;
   setCurrentBook: (currentBook: Book | null) => void;
@@ -114,7 +115,7 @@ export const useLibraryStore = createSQLiteStore({
     setLibrariesData: (librariesData: Library[] | null) =>
       set({ librariesData }),
     setLibraryData: (libraryData: Library | null) => set({ libraryData }),
-    setFilesData: (filesData: File[] | null) => set({ filesData }),
+    setFilesData: (filesData: File[] | AudiobookTrack[] | null) => set({ filesData }),
     setFileData: (fileData: File | null) => set({ fileData }),
     setCurrentSeries: (currentSeries: Series | null) => set({ currentSeries }),
     setCurrentBook: (currentBook: Book | null) => set({ currentBook }),

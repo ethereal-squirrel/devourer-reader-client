@@ -116,13 +116,15 @@ export default function LibrariesScreen() {
       roles: state.roles,
     })),
   );
-  const { librariesData, setLibraryId, recentlyRead } = useLibraryStore(
-    useShallow((state) => ({
-      librariesData: state.librariesData,
-      recentlyRead: state.recentlyRead,
-      setLibraryId: state.setLibraryId,
-    })),
-  );
+  const { librariesData, setLibraryId, setLibraryData, recentlyRead } =
+    useLibraryStore(
+      useShallow((state) => ({
+        librariesData: state.librariesData,
+        recentlyRead: state.recentlyRead,
+        setLibraryId: state.setLibraryId,
+        setLibraryData: state.setLibraryData,
+      })),
+    );
 
   const { retrieveLibraries, createLibrary, retrieveLibrary } = useLibrary();
   const { t } = useTranslation();
@@ -134,9 +136,6 @@ export default function LibrariesScreen() {
 
   const handleNavigate = useCallback(
     async (libraryId: string) => {
-      console.log("libraryId", libraryId);
-      console.log("libraryData", librariesData);
-
       if (!librariesData) {
         return null;
       }
@@ -209,42 +208,45 @@ export default function LibrariesScreen() {
                   </div>
                   <div className="w-full flex flex-row overflow-x-auto gap-5 my-5">
                     {recentlyRead &&
-                      (recentlyRead as unknown as any[]).map((item) => (
-                        <button
-                          className="min-w-[calc(50%-0.625rem)] md:min-w-[8rem] md:w-[8rem] hover:cursor-pointer"
-                          onClick={() => {
-                            let url: null | string = null;
+                      (recentlyRead as unknown as any[]).map((item) => {
+                        const library = (
+                          librariesData as unknown as Library[]
+                        )?.find((l) => l.id === item.library_id);
+                        const isAudiobook = library?.type === "audiobook";
 
-                            const library = (
-                              librariesData as unknown as Library[]
-                            )?.find((l) => l.id === item.library_id);
+                        const imgSrc = isAudiobook
+                          ? `${server}/cover-image/${item.library_id}/${item.series_id}.jpg`
+                          : item.series_id
+                            ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
+                            : `${server}/cover-image/${item.library_id}/${item.file_id}.jpg`;
 
-                            if (!library) {
-                              return;
-                            }
-
-                            if (library.type === "book") {
-                              url = `/book/${item.file_id}/read`;
-                            } else {
-                              console.log("manga", item);
-                              url = `/manga/${item.file_id}/read`;
-                              console.log("manga", url);
-                            }
-
-                            navigate(url);
-                          }}
-                        >
-                          <img
-                            src={
-                              item.series_id
-                                ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
-                                : `${server}/cover-image/${item.library_id}/${item.file_id}.jpg`
-                            }
-                            alt={item.title}
-                            className="w-full h-full object-cover rounded-xl"
-                          />
-                        </button>
-                      ))}
+                        return (
+                          <button
+                            key={item.file_id}
+                            className="min-w-[calc(50%-0.625rem)] md:min-w-[8rem] md:w-[8rem] hover:cursor-pointer"
+                            onClick={() => {
+                              if (!library) return;
+                              setLibraryId(library.id);
+                              setLibraryData(library);
+                              let url: string;
+                              if (library.type === "book") {
+                                url = `/book/${item.file_id}/read`;
+                              } else if (library.type === "audiobook") {
+                                url = `/audiobook/${item.series_id}`;
+                              } else {
+                                url = `/manga/${item.file_id}/read`;
+                              }
+                              navigate(url);
+                            }}
+                          >
+                            <img
+                              src={imgSrc}
+                              alt={item.title}
+                              className="w-full h-full object-cover rounded-xl"
+                            />
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
                 <div className="w-full">

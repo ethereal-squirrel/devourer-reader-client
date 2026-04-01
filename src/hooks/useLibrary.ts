@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 import { Book } from "./useBook";
 import { Series } from "./useManga";
+import type { AudiobookSeries } from "./useAudiobook";
 import { useRequest } from "./useRequest";
 import { db } from "../lib/database";
 import { useCommonStore } from "../store/common";
@@ -17,7 +18,7 @@ export interface Library {
   id: number;
   name: string;
   path?: string;
-  type: "book" | "manga";
+  type: "book" | "manga" | "audiobook";
   metadata?: {
     provider?:
       | "myanimelist"
@@ -25,10 +26,11 @@ export interface Library {
       | "devourer"
       | "comicvine"
       | "openlibrary"
+      | "audible"
       | "metron";
     apiKey?: string;
   };
-  series: Array<Book | Series>;
+  series: Array<Book | Series | AudiobookSeries>;
   collections?: Array<{
     id: number;
     name: string;
@@ -42,7 +44,7 @@ export function useLibrary() {
   const { setIsConnected } = useCommonStore(
     useShallow((state) => ({
       setIsConnected: state.setIsConnected,
-    }))
+    })),
   );
   const [scanStatus, setScanStatus] = useState<any>(null);
   const {
@@ -58,7 +60,7 @@ export function useLibrary() {
       libraryId: state.libraryId,
       setLibraryData: state.setLibraryData,
       setRecentlyRead: state.setRecentlyRead,
-    }))
+    })),
   );
 
   const navigate = useNavigate();
@@ -93,7 +95,7 @@ export function useLibrary() {
       pathToFile = await join(
         localDataDir,
         String(BaseDirectory.AppLocalData),
-        `local.${fileExtension}`
+        `local.${fileExtension}`,
       );
 
       await copyFile(file, pathToFile, {
@@ -109,7 +111,7 @@ export function useLibrary() {
       pathToFile = await join(
         localDataDir,
         String(BaseDirectory.AppLocalData),
-        `local.${fileExtension}`
+        `local.${fileExtension}`,
       );
 
       await copyFile(file, pathToFile, {
@@ -138,7 +140,7 @@ export function useLibrary() {
       "GET",
       undefined,
       false,
-      host
+      host,
     );
 
     if (!response.status) {
@@ -170,7 +172,7 @@ export function useLibrary() {
         libraryName: library.name,
         libraryMetadataProvider: library.metadata.provider,
       },
-      false
+      false,
     );
 
     if (!response.status) {
@@ -182,7 +184,7 @@ export function useLibrary() {
             backgroundColor: "#111827",
             color: "#fff",
           },
-        }
+        },
       );
       return false;
     } else {
@@ -194,7 +196,7 @@ export function useLibrary() {
             backgroundColor: "#111827",
             color: "#fff",
           },
-        }
+        },
       );
       return true;
     }
@@ -205,7 +207,7 @@ export function useLibrary() {
       `/library/${libraryId}`,
       "GET",
       undefined,
-      false
+      false,
     );
 
     if (!response.status) {
@@ -234,7 +236,7 @@ export function useLibrary() {
       `/library/${libraryId}/scan`,
       "GET",
       undefined,
-      false
+      false,
     );
 
     if (!response.status) {
@@ -249,7 +251,7 @@ export function useLibrary() {
   const addToCollection = async (collectionId: number, entityId: number) => {
     const response = await makeRequest(
       `/collections/${collectionId}/${entityId}`,
-      "PATCH"
+      "PATCH",
     );
 
     if (!response.status) {
@@ -261,11 +263,11 @@ export function useLibrary() {
 
   const removeFromCollection = async (
     collectionId: number,
-    entityId: number
+    entityId: number,
   ) => {
     const response = await makeRequest(
       `/collections/${collectionId}/${entityId}`,
-      "DELETE"
+      "DELETE",
     );
 
     if (!response.status) {
@@ -278,7 +280,7 @@ export function useLibrary() {
   const deleteCollection = async (collectionId: number) => {
     const response = await makeRequest(
       `/collections/${collectionId}`,
-      "DELETE"
+      "DELETE",
     );
 
     if (!response.status) {
@@ -310,7 +312,7 @@ export function useLibrary() {
             color: "#fff",
             zIndex: 1000,
           },
-        }
+        },
       );
     }
 
@@ -319,6 +321,8 @@ export function useLibrary() {
 
   const getRecentlyRead = async () => {
     const response = await makeRequest("/recently-read", "GET");
+
+    console.log("recently read", response);
 
     if (!response.status) {
       throw new Error("Failed to fetch recently read");
@@ -345,7 +349,7 @@ export function useLibrary() {
             backgroundColor: "#111827",
             color: "#fff",
           },
-        }
+        },
       );
       return response.library;
     }
@@ -353,12 +357,12 @@ export function useLibrary() {
 
   const updateLibrary = async (
     libraryId: number,
-    payload: any
+    payload: any,
   ): Promise<Library> => {
     const response = await makeRequest(
       `/library/${libraryId}`,
       "PATCH",
-      payload
+      payload,
     );
 
     if (!response.status) {
@@ -401,7 +405,7 @@ export function useLibrary() {
     const response = await makeRequest(
       `/library/${payload.libraryId}/collections`,
       "POST",
-      payload
+      payload,
     );
 
     if (!response.status) {
@@ -433,7 +437,7 @@ export function useLibrary() {
   const [library, setLibrary] = useState<Library | null>(null);
   const [isLoadingLocalLibrary, setIsLoadingLocalLibrary] = useState(false);
   const [localLibraryError, setLocalLibraryError] = useState<string | null>(
-    null
+    null,
   );
 
   const loadLocalBooks = async (): Promise<void> => {
@@ -442,7 +446,7 @@ export function useLibrary() {
       setLocalLibraryError(null);
 
       const books = await db.select(
-        "SELECT * FROM BookFile ORDER by title ASC"
+        "SELECT * FROM BookFile ORDER by title ASC",
       );
 
       setLibraryData({
@@ -457,7 +461,7 @@ export function useLibrary() {
     } catch (error) {
       console.error("Failed to load local books:", error);
       setLocalLibraryError(
-        error instanceof Error ? error.message : "Failed to load local books"
+        error instanceof Error ? error.message : "Failed to load local books",
       );
       setLibraryData(null);
     } finally {
@@ -471,7 +475,7 @@ export function useLibrary() {
       setLocalLibraryError(null);
 
       const series = await db.select(
-        "SELECT * FROM MangaSeries ORDER by title ASC"
+        "SELECT * FROM MangaSeries ORDER by title ASC",
       );
 
       setLibraryData({
@@ -486,7 +490,7 @@ export function useLibrary() {
     } catch (error) {
       console.error("Failed to load local manga:", error);
       setLocalLibraryError(
-        error instanceof Error ? error.message : "Failed to load local manga"
+        error instanceof Error ? error.message : "Failed to load local manga",
       );
       setLibraryData(null);
     } finally {

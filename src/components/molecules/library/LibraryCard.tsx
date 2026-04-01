@@ -57,26 +57,30 @@ const LibraryCard = memo(
     const handleClick = useCallback(() => {
       if (!libraryData) return;
 
-      const path =
-        libraryData.type === "manga"
-          ? `/manga/${offline ? (entity as Series).series_id : entity.id}${
-              fromCollection ? `?fromCollection=${fromCollection}` : ""
-            }${
-              offline
-                ? `?isLocal=true&server=${
-                    (entity as (Book | Series) & { server: string }).server
-                  }`
-                : ""
-            }`
-          : `/book/${offline ? (entity as Book).file_id : entity.id}${
-              fromCollection ? `?fromCollection=${fromCollection}` : ""
-            }${
-              offline
-                ? `?isLocal=true&server=${
-                    (entity as (Book | Series) & { server: string }).server
-                  }`
-                : ""
-            }`;
+      let path: string;
+      if (libraryData.type === "audiobook") {
+        path = `/audiobook/${entity.id}`;
+      } else if (libraryData.type === "manga") {
+        path = `/manga/${offline ? (entity as Series).series_id : entity.id}${
+          fromCollection ? `?fromCollection=${fromCollection}` : ""
+        }${
+          offline
+            ? `?isLocal=true&server=${
+                (entity as (Book | Series) & { server: string }).server
+              }`
+            : ""
+        }`;
+      } else {
+        path = `/book/${offline ? (entity as Book).file_id : entity.id}${
+          fromCollection ? `?fromCollection=${fromCollection}` : ""
+        }${
+          offline
+            ? `?isLocal=true&server=${
+                (entity as (Book | Series) & { server: string }).server
+              }`
+            : ""
+        }`;
+      }
 
       navigate(path);
     }, [libraryData, entity.id, offline, navigate]);
@@ -87,10 +91,13 @@ const LibraryCard = memo(
         return book.metadata?.epub?.title && book.metadata.epub.title.length > 0
           ? book.metadata.epub.title
           : book.metadata?.original_title || book.title;
+      } else if (libraryData?.type === "audiobook") {
+        const ab = entity as any;
+        return ab.audiobook_data?.title || entity.title;
       } else {
         const manga = entity as Series;
 
-        if (manga.manga_data.titles) {
+        if (manga.manga_data?.titles) {
           const title = manga.manga_data.titles.find(
             (title: any) => title.type === "English"
           );

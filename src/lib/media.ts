@@ -100,6 +100,21 @@ export const getLocalImage = async (
       } else {
         return null;
       }
+    } else if (type === "audiobook") {
+      const imagePath = await join(
+        localDataDir,
+        String(BaseDirectory.AppLocalData),
+        safeServer,
+        "audiobooks",
+        String(seriesId),
+        "cover.jpg"
+      );
+
+      if (await exists(imagePath, { baseDir: BaseDirectory.AppLocalData })) {
+        return convertFileSrc(imagePath);
+      } else {
+        return null;
+      }
     } else {
       const imagePath = await join(
         localDataDir,

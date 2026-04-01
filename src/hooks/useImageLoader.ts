@@ -6,10 +6,11 @@ import { imageCache } from "../lib/imageCache";
 import { useCommonStore } from "../store/common";
 import { Book } from "./useBook";
 import { File, Series } from "./useManga";
+import { AudiobookSeries } from "./useAudiobook";
 
 export interface UseImageLoaderOptions {
-  type: "manga" | "book" | "file";
-  entity: Book | Series | File;
+  type: "manga" | "book" | "file" | "audiobook";
+  entity: Book | Series | File | AudiobookSeries;
   libraryId?: number;
   offline?: boolean;
   fallbackUrl?: string;
@@ -38,7 +39,7 @@ export function useImageLoader({
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
-    }))
+    })),
   );
 
   const cacheKey = useMemo(() => {
@@ -103,7 +104,9 @@ export function useImageLoader({
         const seriesIdParam =
           type === "book"
             ? (entity as Book).file_id
-            : (entity as Series).series_id;
+            : type === "audiobook"
+              ? entity.id
+              : (entity as Series).series_id;
         const fileIdParam =
           type === "manga" || type === "file"
             ? (entity as File).file_id
@@ -114,7 +117,7 @@ export function useImageLoader({
           type,
           seriesIdParam,
           fileIdParam,
-          serverParam
+          serverParam,
         );
 
         if (result) {
@@ -180,7 +183,6 @@ export function useImageLoader({
     };
   }, [loadImage]);
 
-
   return {
     imagePath,
     isLoading,
@@ -195,6 +197,6 @@ export const imageCacheUtils = {
   generateCacheKey: (
     entityId: number,
     type: "book" | "manga",
-    libraryId?: number
+    libraryId?: number,
   ) => imageCache.generateCacheKey(entityId, type, libraryId),
 };
