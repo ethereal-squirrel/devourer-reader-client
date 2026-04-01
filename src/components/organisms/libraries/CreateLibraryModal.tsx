@@ -25,7 +25,7 @@ export const CreateLibraryModal = memo(
     const { serverVersion } = useCommonStore(
       useShallow((state) => ({
         serverVersion: state.serverVersion,
-      }))
+      })),
     );
     const [error, setError] = useState<string | null>(null);
     const [isCalibreSupported, setIsCalibreSupported] = useState(false);
@@ -48,7 +48,7 @@ export const CreateLibraryModal = memo(
         const getProviders = async () => {
           const { status, providers } = await makeRequest(
             "/metadata/providers",
-            "GET"
+            "GET",
           );
 
           if (status) {
@@ -198,72 +198,90 @@ export const CreateLibraryModal = memo(
                         },
                         type: "book",
                       });
+                    } else if (e.target.value === "audiobook") {
+                      setLibrary({
+                        ...library,
+                        metadata: {
+                          provider: "audible",
+                          apiKey: "",
+                        },
+                        type: "audiobook",
+                      });
                     }
                   }}
                 >
                   <option value="manga">{t("common.manga")}</option>
                   <option value="book">{t("common.book")}</option>
+                  <option value="audiobook">{t("common.audiobook")}</option>
                 </select>
-                <label htmlFor="type" className="font-semibold">
-                  {t("libraries.metadataProvider")}
-                </label>
-                <select
-                  id="metadataProvider"
-                  className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
-                  value={library.metadata?.provider}
-                  onChange={(e) =>
-                    setLibrary({
-                      ...library,
-                      metadata: {
-                        ...library.metadata,
-                        provider: e.target.value as
-                          | "myanimelist"
-                          | "googlebooks"
-                          | "devourer"
-                          | "comicvine"
-                          | "openlibrary",
-                      },
-                    })
-                  }
-                >
-                  {providers &&
-                    providers
-                      .filter(
+                {library.type !== "audiobook" && (
+                  <>
+                    <label htmlFor="type" className="font-semibold">
+                      {t("libraries.metadataProvider")}
+                    </label>
+                    <select
+                      id="metadataProvider"
+                      className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
+                      value={library.metadata?.provider}
+                      onChange={(e) =>
+                        setLibrary({
+                          ...library,
+                          metadata: {
+                            ...library.metadata,
+                            provider: e.target.value as
+                              | "myanimelist"
+                              | "googlebooks"
+                              | "devourer"
+                              | "comicvine"
+                              | "audible"
+                              | "openlibrary",
+                          },
+                        })
+                      }
+                    >
+                      {providers &&
+                        providers
+                          .filter(
+                            (provider: any) =>
+                              provider.properties.library_type ===
+                                library.type ||
+                              (library.type === "audiobook" &&
+                                provider.properties.library_type === "book"),
+                          )
+                          .map((provider: any) => (
+                            <option key={provider.key} value={provider.key}>
+                              {provider.name}
+                            </option>
+                          ))}
+                    </select>
+                    {providers &&
+                      providers.find(
                         (provider: any) =>
-                          provider.properties.library_type === library.type
-                      )
-                      .map((provider: any) => (
-                        <option key={provider.key} value={provider.key}>
-                          {provider.name}
-                        </option>
-                      ))}
-                </select>
-                {providers &&
-                  providers.find(
-                    (provider: any) =>
-                      provider.key === library.metadata?.provider
-                  )?.properties.key_required && (
-                    <>
-                      <label htmlFor="path" className="font-semibold">
-                        {t("libraries.metadataApiKey")}
-                      </label>
-                      <input
-                        type="text"
-                        id="path"
-                        className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
-                        value={library.metadata?.apiKey}
-                        onChange={(e) =>
-                          setLibrary({
-                            ...library,
-                            metadata: {
-                              ...library.metadata,
-                              apiKey: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </>
-                  )}
+                          provider.key === library.metadata?.provider,
+                      )?.properties.key_required && (
+                        <>
+                          <label htmlFor="path" className="font-semibold">
+                            {t("libraries.metadataApiKey")}
+                          </label>
+                          <input
+                            type="text"
+                            id="path"
+                            className="w-full bg-gray-800 rounded-md p-2 text-white mb-5 mt-2 border border-gray-500"
+                            value={library.metadata?.apiKey}
+                            onChange={(e) =>
+                              setLibrary({
+                                ...library,
+                                metadata: {
+                                  ...library.metadata,
+                                  apiKey: e.target.value,
+                                },
+                              })
+                            }
+                          />
+                        </>
+                      )}
+                  </>
+                )}
               </div>
               {error && (
                 <div
@@ -309,5 +327,5 @@ export const CreateLibraryModal = memo(
         </div>
       </Dialog>
     );
-  }
+  },
 );

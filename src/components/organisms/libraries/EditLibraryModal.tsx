@@ -32,6 +32,13 @@ const metadataProviders = {
       keyRequired: false,
     },
   ],
+  audiobook: [
+    {
+      label: "Audible",
+      value: "audible",
+      keyRequired: false,
+    },
+  ],
 };
 
 export const EditLibraryModal = memo(
@@ -92,7 +99,7 @@ export const EditLibraryModal = memo(
         {
           title: "Devourer",
           kind: "warning",
-        }
+        },
       );
 
       if (answer) {
@@ -172,6 +179,7 @@ export const EditLibraryModal = memo(
                           | "googlebooks"
                           | "devourer"
                           | "comicvine"
+                          | "audible"
                           | "openlibrary",
                       },
                     })
@@ -184,7 +192,7 @@ export const EditLibraryModal = memo(
                   ))}
                 </select>
                 {metadataProviders[payload.type].find(
-                  (provider) => provider.value === payload.metadata?.provider
+                  (provider) => provider.value === payload.metadata?.provider,
                 )?.keyRequired && (
                   <>
                     <label htmlFor="path" className="font-semibold">
@@ -241,5 +249,5 @@ export const EditLibraryModal = memo(
         </div>
       </Dialog>
     );
-  }
+  },
 );

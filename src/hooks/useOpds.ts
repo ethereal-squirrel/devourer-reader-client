@@ -48,14 +48,12 @@ export function useOpds() {
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
-    // Check for parsing errors
     const parserError = xmlDoc.querySelector("parsererror");
     if (parserError) {
       console.error("XML content around error:", xmlString.substring(0, 2000));
       throw new Error("XML parsing failed: " + parserError.textContent);
     }
 
-    // Also check if we got a valid feed element
     const feedElement = xmlDoc.querySelector("feed");
     if (!feedElement) {
       console.error(
@@ -74,7 +72,6 @@ export function useOpds() {
       throw new Error("Invalid OPDS feed: no feed element found");
     }
 
-    // Extract basic feed info
     const feedData: OpdsFeed = {
       id: feed.querySelector("id")?.textContent || "",
       title: feed.querySelector("title")?.textContent || "",
@@ -83,7 +80,6 @@ export function useOpds() {
       links: [],
     };
 
-    // Extract feed-level links (for pagination, navigation, etc.)
     const feedLinkElements = feed.querySelectorAll("link");
     feedData.links = Array.from(feedLinkElements).map((link) => ({
       rel: link.getAttribute("rel") || "",
@@ -91,7 +87,6 @@ export function useOpds() {
       type: link.getAttribute("type") || "",
     }));
 
-    // Extract entries (libraries or books)
     const entries = feed.querySelectorAll("entry");
 
     feedData.entries = Array.from(entries).map((entry): any => {
@@ -125,7 +120,6 @@ export function useOpds() {
     const xmlDoc = parseXmlToJson(xmlData);
     const feedData = extractOpdsData(xmlDoc);
 
-    // Filter for library entries (subsection links)
     return feedData.entries.filter((entry: any) =>
       entry.links.some((link: any) => link.rel === "subsection")
     );
@@ -137,7 +131,6 @@ export function useOpds() {
     const xmlDoc = parseXmlToJson(xmlData);
     const feedData = extractOpdsData(xmlDoc);
 
-    // Get pagination links and resolve them to absolute URLs
     const baseUrl = new URL(libraryUrl);
     const nextLink = feedData.links.find((link: any) => link.rel === "next");
     const prevLink = feedData.links.find((link: any) => link.rel === "prev");
@@ -145,7 +138,6 @@ export function useOpds() {
     setNextLink(nextLink ? new URL(nextLink.href, baseUrl).toString() : null);
     setPrevLink(prevLink ? new URL(prevLink.href, baseUrl).toString() : null);
 
-    // Filter for book entries (acquisition links)
     return {
       books: feedData.entries.filter((entry: any) =>
         entry.links.some(
