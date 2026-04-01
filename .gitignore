@@ -25,3 +25,4 @@ dist-ssr
 .claude
 .vscode/extensions.json
 src-tauri/gen
+.env
