@@ -6,7 +6,7 @@ import { join, appLocalDataDir } from "@tauri-apps/api/path";
 
 import { File, Series } from "./useManga";
 import { Book } from "./useBook";
-import { AudiobookTrack, AudiobookSeries } from "./useAudiobook";
+// import { AudiobookTrack, AudiobookSeries } from "./useAudiobook";
 import { useCommonStore } from "../store/common";
 import { useImportStore } from "../store/import";
 import { Library } from "./useLibrary";
@@ -69,10 +69,10 @@ export function useImport() {
   };
 
   const processItem = async (item: {
-    type: "book" | "series" | "file" | "audiobook-track";
+    type: "book" | "series" | "file" /* | "audiobook-track" */;
     server: string;
-    entity: Book | Series | File | AudiobookTrack;
-    series?: AudiobookSeries;
+    entity: Book | Series | File /* | AudiobookTrack */;
+    // series?: AudiobookSeries;
   }) => {
     console.info("Processing item", item);
 
@@ -82,12 +82,12 @@ export function useImport() {
       return processSeries(item.entity as Series, item.server);
     } else if (item.type === "file") {
       return processFile(item.entity as File, item.server);
-    } else if (item.type === "audiobook-track") {
-      return processAudiobookTrack(
-        item.entity as AudiobookTrack,
-        item.series as AudiobookSeries,
-        item.server,
-      );
+      // } else if (item.type === "audiobook-track") {
+      //   return processAudiobookTrack(
+      //     item.entity as AudiobookTrack,
+      //     item.series as AudiobookSeries,
+      //     item.server,
+      //   );
     }
 
     return false;
@@ -173,67 +173,67 @@ export function useImport() {
     console.info("Processing series", series, server);
   };
 
-  const processAudiobookTrack = async (
-    track: AudiobookTrack,
-    series: AudiobookSeries,
-    server: string,
-  ) => {
-    console.info("Attempting to process audiobook track", track);
-
-    try {
-      const existingTrack = await db.select(
-        "SELECT * FROM AudiobookFile WHERE file_id = ? AND server = ?",
-        [track.id, server],
-      );
-
-      if (existingTrack && (existingTrack as any[]).length > 0) {
-        console.info("Track already exists", existingTrack);
-        return true;
-      }
-
-      console.info("Inserting track", track);
-
-      const localDataDir = await appLocalDataDir();
-      const safeServer = server.replace(/[/:?&]/g, "_");
-
-      const path = await join(
-        localDataDir,
-        String(BaseDirectory.AppLocalData),
-        safeServer,
-        "audiobooks",
-        String(track.series_id),
-        "files",
-        track.file_name,
-      );
-
-      await db.execute(
-        "INSERT INTO AudiobookFile (file_id, path, file_name, file_format, track_number, duration_seconds, current_position_seconds, is_listened, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          track.id,
-          path,
-          track.file_name,
-          track.file_format,
-          track.track_number,
-          track.duration_seconds,
-          track.current_position_seconds ?? "0",
-          track.is_listened ?? false,
-          track.series_id,
-          JSON.stringify(track.metadata),
-          server,
-        ],
-      );
-
-      await invoke("download_file", {
-        url: `${server}/stream/${libraryData?.id}/${track.id}`,
-        path,
-      });
-
-      return true;
-    } catch (error) {
-      console.error("Error processing audiobook track", error);
-      return false;
-    }
-  };
+  // const processAudiobookTrack = async (
+  //   track: AudiobookTrack,
+  //   series: AudiobookSeries,
+  //   server: string,
+  // ) => {
+  //   console.info("Attempting to process audiobook track", track);
+  //
+  //   try {
+  //     const existingTrack = await db.select(
+  //       "SELECT * FROM AudiobookFile WHERE file_id = ? AND server = ?",
+  //       [track.id, server],
+  //     );
+  //
+  //     if (existingTrack && (existingTrack as any[]).length > 0) {
+  //       console.info("Track already exists", existingTrack);
+  //       return true;
+  //     }
+  //
+  //     console.info("Inserting track", track);
+  //
+  //     const localDataDir = await appLocalDataDir();
+  //     const safeServer = server.replace(/[/:?&]/g, "_");
+  //
+  //     const path = await join(
+  //       localDataDir,
+  //       String(BaseDirectory.AppLocalData),
+  //       safeServer,
+  //       "audiobooks",
+  //       String(track.series_id),
+  //       "files",
+  //       track.file_name,
+  //     );
+  //
+  //     await db.execute(
+  //       "INSERT INTO AudiobookFile (file_id, path, file_name, file_format, track_number, duration_seconds, current_position_seconds, is_listened, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  //       [
+  //         track.id,
+  //         path,
+  //         track.file_name,
+  //         track.file_format,
+  //         track.track_number,
+  //         track.duration_seconds,
+  //         track.current_position_seconds ?? "0",
+  //         track.is_listened ?? false,
+  //         track.series_id,
+  //         JSON.stringify(track.metadata),
+  //         server,
+  //       ],
+  //     );
+  //
+  //     await invoke("download_file", {
+  //       url: `${server}/stream/${libraryData?.id}/${track.id}`,
+  //       path,
+  //     });
+  //
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error processing audiobook track", error);
+  //     return false;
+  //   }
+  // };
 
   const processFile = async (file: File, server: string) => {
     console.info("Attempting to process manga file", file);
@@ -344,9 +344,9 @@ export function useImport() {
 
   const addToQueue = useCallback(
     async (
-      type: "file" | "book" | "audiobook-track",
-      file: Book | File | AudiobookTrack,
-      series?: Series | AudiobookSeries,
+      type: "file" | "book" /* | "audiobook-track" */,
+      file: Book | File /* | AudiobookTrack */,
+      series?: Series /* | AudiobookSeries */,
     ): Promise<boolean> => {
       try {
         if (!libraryData) {
@@ -372,16 +372,17 @@ export function useImport() {
           };
 
           setCurrentQueue([...currentQueue, queueItem]);
-        } else if (type === "audiobook-track" && series) {
-          const queueItem = {
-            type: "audiobook-track",
-            entity: file,
-            series,
-            server,
-          };
-
-          setCurrentQueue([...currentQueue, queueItem]);
         }
+        // else if (type === "audiobook-track" && series) {
+        //   const queueItem = {
+        //     type: "audiobook-track",
+        //     entity: file,
+        //     series,
+        //     server,
+        //   };
+        //
+        //   setCurrentQueue([...currentQueue, queueItem]);
+        // }
 
         return true;
       } catch (error) {
