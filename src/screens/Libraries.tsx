@@ -116,14 +116,15 @@ export default function LibrariesScreen() {
       roles: state.roles,
     })),
   );
-  const { librariesData, setLibraryId, setLibraryData, recentlyRead } = useLibraryStore(
-    useShallow((state) => ({
-      librariesData: state.librariesData,
-      recentlyRead: state.recentlyRead,
-      setLibraryId: state.setLibraryId,
-      setLibraryData: state.setLibraryData,
-    })),
-  );
+  const { librariesData, setLibraryId, setLibraryData, recentlyRead } =
+    useLibraryStore(
+      useShallow((state) => ({
+        librariesData: state.librariesData,
+        recentlyRead: state.recentlyRead,
+        setLibraryId: state.setLibraryId,
+        setLibraryData: state.setLibraryData,
+      })),
+    );
 
   const { retrieveLibraries, createLibrary, retrieveLibrary } = useLibrary();
   const { t } = useTranslation();
@@ -135,9 +136,6 @@ export default function LibrariesScreen() {
 
   const handleNavigate = useCallback(
     async (libraryId: string) => {
-      console.log("libraryId", libraryId);
-      console.log("libraryData", librariesData);
-
       if (!librariesData) {
         return null;
       }
@@ -211,16 +209,16 @@ export default function LibrariesScreen() {
                   <div className="w-full flex flex-row overflow-x-auto gap-5 my-5">
                     {recentlyRead &&
                       (recentlyRead as unknown as any[]).map((item) => {
-                        const library = (librariesData as unknown as Library[])?.find(
-                          (l) => l.id === item.library_id
-                        );
+                        const library = (
+                          librariesData as unknown as Library[]
+                        )?.find((l) => l.id === item.library_id);
                         const isAudiobook = library?.type === "audiobook";
 
                         const imgSrc = isAudiobook
                           ? `${server}/cover-image/${item.library_id}/${item.series_id}.jpg`
                           : item.series_id
-                          ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
-                          : `${server}/cover-image/${item.library_id}/${item.file_id}.jpg`;
+                            ? `${server}/preview-image/${item.library_id}/${item.series_id}/${item.file_id}.jpg`
+                            : `${server}/cover-image/${item.library_id}/${item.file_id}.jpg`;
 
                         return (
                           <button

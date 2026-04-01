@@ -59,13 +59,13 @@ export function useManga() {
   const { server } = useCommonStore(
     useShallow((state) => ({
       server: state.server,
-    }))
+    })),
   );
   const { libraryData, setFilesData } = useLibraryStore(
     useShallow((state) => ({
       libraryData: state.libraryData as unknown as Library,
       setFilesData: state.setFilesData,
-    }))
+    })),
   );
 
   const {
@@ -90,7 +90,7 @@ export function useManga() {
       const file = await retrieveLocalFile(fileId, server || "");
       return file !== null;
     },
-    [server]
+    [server],
   );
 
   const retrieveSeries = useCallback(
@@ -113,7 +113,7 @@ export function useManga() {
           `/series/${libraryData && libraryData.id}/${seriesId}`,
           "GET",
           null,
-          true
+          true,
         );
 
         if (!series) {
@@ -125,7 +125,7 @@ export function useManga() {
         if (import.meta.env.VITE_PUBLIC_CLIENT_PLATFORM === "mobile") {
           const existingSeries = await db.select(
             "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-            [seriesId, server]
+            [seriesId, server],
           );
 
           if (existingSeries && existingSeries.length > 0) {
@@ -139,7 +139,7 @@ export function useManga() {
         return series;
       }
     },
-    [libraryData]
+    [libraryData],
   );
 
   const retrieveFiles = useCallback(
@@ -151,7 +151,7 @@ export function useManga() {
           `/series/${libraryData && libraryData.id}/${seriesId}/files`,
           "GET",
           null,
-          true
+          true,
         );
 
         if (!response.status) {
@@ -163,7 +163,7 @@ export function useManga() {
         return response.files;
       }
     },
-    [libraryData]
+    [libraryData],
   );
 
   const retrieveFile = useCallback(async (fileId: number) => {
@@ -171,7 +171,7 @@ export function useManga() {
       `/file/${libraryData && libraryData.id}/${fileId}`,
       "GET",
       null,
-      true
+      true,
     );
 
     if (!response.status) {
@@ -185,7 +185,7 @@ export function useManga() {
     async (fileId: number, server: string) => {
       const existingFile = await db.select(
         "SELECT * FROM MangaFile WHERE file_id = ? AND server = ?",
-        [fileId, server]
+        [fileId, server],
       );
 
       if (existingFile && existingFile.length > 0) {
@@ -199,14 +199,14 @@ export function useManga() {
         return null;
       }
     },
-    [db]
+    [db],
   );
 
   const retrieveLocalSeries = useCallback(
     async (seriesId: number, server: string) => {
       const existingSeries = await db.select(
         "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-        [seriesId, server]
+        [seriesId, server],
       );
 
       if (existingSeries && existingSeries.length > 0) {
@@ -217,7 +217,7 @@ export function useManga() {
 
         const existingFileData = await db.select(
           "SELECT * FROM MangaFile WHERE series_id = ? AND server = ?",
-          [seriesId, server]
+          [seriesId, server],
         );
 
         setFilesData(existingFileData as File[]);
@@ -227,7 +227,7 @@ export function useManga() {
         return null;
       }
     },
-    [db]
+    [db],
   );
 
   const makeSeriesAvailableOffline = async (series: Series, file?: File) => {
@@ -238,7 +238,7 @@ export function useManga() {
       {
         title: "Devourer",
         kind: "info",
-      }
+      },
     );
 
     if (answer) {
@@ -250,7 +250,7 @@ export function useManga() {
 
         const existingSeries = await db.select(
           "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-          [series.id, server]
+          [series.id, server],
         );
 
         if (existingSeries && existingSeries.length > 0) {
@@ -272,12 +272,12 @@ export function useManga() {
               libraryData?.id,
               JSON.stringify(series.manga_data),
               server,
-            ]
+            ],
           );
 
           const existingSeries = await db.select(
             "SELECT * FROM MangaSeries WHERE series_id = ? AND server = ?",
-            [series.id, server]
+            [series.id, server],
           );
 
           seriesData = existingSeries[0];
@@ -289,7 +289,7 @@ export function useManga() {
           await downloadCoverImage(
             "series",
             seriesData.library_id,
-            seriesData.series_id
+            seriesData.series_id,
           );
         }
 
@@ -311,7 +311,7 @@ export function useManga() {
               color: "#fff",
             },
             position: "bottom-right",
-          }
+          },
         );
 
         return true;
@@ -327,7 +327,7 @@ export function useManga() {
               color: "#fff",
             },
             position: "bottom-right",
-          }
+          },
         );
 
         return false;
@@ -343,7 +343,7 @@ export function useManga() {
       {
         title: "Devourer",
         kind: "warning",
-      }
+      },
     );
 
     if (answer) {
@@ -352,12 +352,12 @@ export function useManga() {
       if (file) {
         outcome = await removeFile(
           file.file_id ? file.file_id : file.id,
-          server
+          server,
         );
       } else {
         outcome = await removeSeries(
           series.series_id ? series.series_id : series.id,
-          server
+          server,
         );
       }
 
@@ -372,7 +372,7 @@ export function useManga() {
               backgroundColor: "#111827",
               color: "#fff",
             },
-          }
+          },
         );
       } else {
         toast.error(
@@ -385,7 +385,7 @@ export function useManga() {
               backgroundColor: "#111827",
               color: "#fff",
             },
-          }
+          },
         );
       }
     }

@@ -41,7 +41,7 @@ export function useShared() {
       formData.append("file", fileData, fileName);
 
       const response = await fetch(
-        `https://kindle.devourer.app/send-to-kindle?email=${email}`,
+        `https://kindle.devourer.dev/send-to-kindle?email=${email}`,
         {
           method: "POST",
           body: formData,

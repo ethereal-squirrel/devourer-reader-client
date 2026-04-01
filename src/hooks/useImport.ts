@@ -283,10 +283,32 @@ export function useImport() {
         file.file_name,
       );
 
+      await db.execute(
+        "INSERT INTO MangaFile (file_id, path, file_name, file_format, volume, chapter, total_pages, current_page, is_read, series_id, metadata, server) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          file.id,
+          path,
+          file.file_name,
+          file.file_format,
+          file.volume,
+          file.chapter,
+          file.total_pages,
+          file.current_page ?? 0,
+          file.is_read ?? false,
+          file.series_id,
+          JSON.stringify(file.metadata),
+          server,
+        ],
+      );
+
+      console.log("Downloading file.");
+
       await invoke("download_file", {
         url: `${server}/stream/${libraryData?.id}/${file.id}`,
         path,
       });
+
+      console.log("File downloaded.");
 
       const imagePath = await join(
         localDataDir,
@@ -319,6 +341,8 @@ export function useImport() {
       path = `${BaseDirectory.AppLocalData}/${safeServer}/series/${seriesId}/files`;
     } else if (type === "book") {
       path = `${BaseDirectory.AppLocalData}/${safeServer}/books/${seriesId}/files`;
+    } else if (type === "audiobook") {
+      path = `${BaseDirectory.AppLocalData}/${safeServer}/audiobooks/${seriesId}/files`;
     }
 
     if (!path) {
@@ -375,6 +399,16 @@ export function useImport() {
 
           setCurrentQueue([...currentQueue, queueItem]);
         }
+        // else if (type === "audiobook-track" && series) {
+        //   const queueItem = {
+        //     type: "audiobook-track",
+        //     entity: file,
+        //     series,
+        //     server,
+        //   };
+        //
+        //   setCurrentQueue([...currentQueue, queueItem]);
+        // }
 
         return true;
       } catch (error) {
