@@ -21,6 +21,9 @@ export interface AudiobookSeries {
   total_duration_seconds: number;
   server?: string;
   rating?: number;
+  userRating?: {
+    rating: number;
+  };
   tags?: string[];
 }
 
@@ -314,10 +317,7 @@ export function useAudiobook() {
       if (track) {
         outcome = await removeAudiobookTrack(track.id, series.id, server);
       } else {
-        outcome = await removeAudiobookSeries(
-          series.id,
-          server,
-        );
+        outcome = await removeAudiobookSeries(series.id, server);
       }
 
       if (outcome) {

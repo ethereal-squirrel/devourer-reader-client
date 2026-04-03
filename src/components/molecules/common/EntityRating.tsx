@@ -43,7 +43,8 @@ export default function EntityRating({
               className={`w-8 h-8 cursor-pointer ${
                 currentHover !== null && rating <= currentHover
                   ? "text-yellow-800"
-                  : series.rating && rating <= (series.rating || 0)
+                  : series.userRating?.rating &&
+                      rating <= (series.userRating?.rating || 0)
                     ? "text-yellow-500"
                     : "text-gray-600"
               }`}
