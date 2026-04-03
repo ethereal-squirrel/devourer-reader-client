@@ -3,7 +3,6 @@ import { useShallow } from "zustand/react/shallow";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
-import EntityNav from "../components/molecules/common/EntityNav";
 import { LoadingState } from "../components/organisms/common/LoadingState";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
@@ -50,8 +49,7 @@ export default function PlayAudiobookScreen() {
   );
   const isLocal = searchParams.get("isLocal") === "true";
   const localServer = searchParams.get("server") || null;
-  const { series, offlineAvailability, retrieveSeries, retrieveLocalSeries } =
-    useAudiobook();
+  const { series, retrieveSeries, retrieveLocalSeries } = useAudiobook();
   const { playTrack } = useAudioPlayer(isLocal, localServer);
   const { filesData, libraryId } = useLibraryStore(
     useShallow((state) => ({

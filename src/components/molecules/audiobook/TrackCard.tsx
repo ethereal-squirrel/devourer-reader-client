@@ -57,10 +57,6 @@ const TrackCard = memo(
       }
     }, [offline, entity.id, isTrackAvailableOffline]);
 
-    const handlePlay = useCallback(() => {
-      onPlay(entity, series);
-    }, [onPlay, entity, series]);
-
     const displayTitle = entity.metadata?.title || entity.file_name;
     const trackNum = String(
       entity.track_number > 0 ? entity.track_number : "?",
