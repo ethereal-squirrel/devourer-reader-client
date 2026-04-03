@@ -10,72 +10,12 @@ import {
 import { Library } from "../../../hooks/useLibrary";
 import { useLibraryStore } from "../../../store/library";
 import { useAudioPlayerStore } from "../../../store/audioPlayer";
-import { useAudioTimeStore } from "../../../store/audioTime";
-import { audioSingleton } from "../../../lib/audioSingleton";
-
-function formatDuration(seconds: number): string {
-  if (!seconds || seconds <= 0) return "0:00";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) {
-    return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  }
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function TimeDisplay() {
-  const currentTime = useAudioTimeStore((s) => s.currentTime);
-  return (
-    <span className="text-xs text-gray-400">
-      {formatDuration(Math.floor(currentTime))}
-    </span>
-  );
-}
-
-function SeekBar({ duration }: { duration: number }) {
-  const currentTime = useAudioTimeStore((s) => s.currentTime);
-  const [dragging, setDragging] = useState(false);
-  const [dragValue, setDragValue] = useState(0);
-
-  const displayValue = dragging ? dragValue : currentTime;
-  const percent = duration > 0 ? (displayValue / duration) * 100 : 0;
-
-  return (
-    <input
-      type="range"
-      min={0}
-      max={duration || 1}
-      step={1}
-      value={displayValue}
-      className="w-full h-1 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
-      style={{
-        background: `linear-gradient(to right, rgba(255,255,255,0.85) ${percent}%, rgba(255,255,255,0.2) ${percent}%)`,
-      }}
-      onMouseDown={() => {
-        setDragging(true);
-        setDragValue(currentTime);
-      }}
-      onTouchStart={() => {
-        setDragging(true);
-        setDragValue(currentTime);
-      }}
-      onChange={(e) => setDragValue(Number(e.target.value))}
-      onMouseUp={(e) => {
-        const val = Number((e.target as HTMLInputElement).value);
-        audioSingleton.getAudio().currentTime = val;
-        useAudioTimeStore.getState().setCurrentTime(val);
-        setDragging(false);
-      }}
-      onTouchEnd={(e) => {
-        const val = Number(e.currentTarget.value);
-        audioSingleton.getAudio().currentTime = val;
-        useAudioTimeStore.getState().setCurrentTime(val);
-        setDragging(false);
-      }}
-    />
-  );
-}
+import { useNavigate } from "react-router";
+import {
+  SeekBar,
+  TimeDisplay,
+  formatDuration,
+} from "../../atoms/audio/AudioSeekBar";
 
 const TrackCard = memo(
   function TrackCard({
@@ -89,6 +29,7 @@ const TrackCard = memo(
     series: AudiobookSeries;
     onPlay: (track: AudiobookTrack, series: AudiobookSeries) => void;
   }) {
+    const navigate = useNavigate();
     const { libraryData } = useLibraryStore(
       useShallow((state) => ({
         libraryData: state.libraryData as unknown as Library,
@@ -101,8 +42,12 @@ const TrackCard = memo(
     } = useAudiobook();
     const [isAvailableOffline, setIsAvailableOffline] = useState(false);
 
-    const isThisTrackActive = useAudioPlayerStore((s) => s.activeTrackId === entity.id);
-    const isThisTrackPlaying = useAudioPlayerStore((s) => s.activeTrackId === entity.id && s.isPlaying);
+    const isThisTrackActive = useAudioPlayerStore(
+      (s) => s.activeTrackId === entity.id,
+    );
+    const isThisTrackPlaying = useAudioPlayerStore(
+      (s) => s.activeTrackId === entity.id && s.isPlaying,
+    );
 
     useEffect(() => {
       if (!offline) {
@@ -126,10 +71,15 @@ const TrackCard = memo(
     if (!libraryData) return null;
 
     return (
-      <div className="bg-primary text-white rounded-xl flex flex-col px-4 py-3">
+      <button
+        className="bg-primary text-white rounded-xl flex flex-col px-4 py-3 justify-start text-start hover:cursor-pointer"
+        onClick={() => {
+          navigate(`/audiobook/${series.id}/${entity.id}/play`);
+        }}
+      >
         <div className="flex flex-row items-center gap-3">
           <div>
-            <button className="rounded-full bg-black/25 p-1 hover:cursor-pointer" onClick={handlePlay}>
+            <button className="rounded-full bg-black/25 p-1">
               {isThisTrackPlaying ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +187,7 @@ const TrackCard = memo(
             <SeekBar duration={entity.duration_seconds} />
           </div>
         )}
-      </div>
+      </button>
     );
   },
   (prevProps, nextProps) => {

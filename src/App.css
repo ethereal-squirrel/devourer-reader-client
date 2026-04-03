@@ -66,7 +66,6 @@
   font-family: "ComicNeue-Regular", system-ui, -apple-system, sans-serif;
 }
 
-/* Line clamp utility for text truncation */
 .line-clamp-3 {
   overflow: hidden;
   display: -webkit-box;
@@ -117,13 +116,6 @@ iframe p {
   font-family: "Arial", "sans-serif" !important;
 }
 
-/* Firefox (uncomment to work in Firefox, although other properties will not work!)  */
-/** {
-  scrollbar-width: thin;
-  scrollbar-color: #446FA0 #000000;
-}*/
-
-/* Chrome, Edge and Safari */
 *::-webkit-scrollbar {
   height: 12px;
   width: 12px;

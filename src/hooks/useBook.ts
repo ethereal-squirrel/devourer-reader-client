@@ -24,6 +24,9 @@ export interface Book {
   library_id: number | null;
   metadata: any;
   rating?: number;
+  userRating?: {
+    rating: number;
+  };
   tags?: string[];
 }
 

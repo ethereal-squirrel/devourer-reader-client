@@ -399,16 +399,6 @@ export function useImport() {
 
           setCurrentQueue([...currentQueue, queueItem]);
         }
-        // else if (type === "audiobook-track" && series) {
-        //   const queueItem = {
-        //     type: "audiobook-track",
-        //     entity: file,
-        //     series,
-        //     server,
-        //   };
-        //
-        //   setCurrentQueue([...currentQueue, queueItem]);
-        // }
 
         return true;
       } catch (error) {

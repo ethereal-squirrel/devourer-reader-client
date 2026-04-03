@@ -29,6 +29,8 @@ import "../i18n";
 import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import { DeepLinkHandler } from "./components/handlers/DeepLinkHandler";
+import { PersistentAudioHandler } from "./components/handlers/PersistentAudioHandler";
+import PlayAudiobookScreen from "./screens/PlayAudiobook";
 
 function App() {
   const addLog = useLogStore((state) => state.addLog);
@@ -44,7 +46,7 @@ function App() {
 
     const createInterceptor = (
       method: keyof typeof originalConsole,
-      level: string
+      level: string,
     ) => {
       return (...args: any[]) => {
         originalConsole[method](...args);
@@ -55,7 +57,7 @@ function App() {
             timestamp: new Date().toISOString(),
             message: args
               .map((arg) =>
-                typeof arg === "object" ? JSON.stringify(arg) : String(arg)
+                typeof arg === "object" ? JSON.stringify(arg) : String(arg),
               )
               .join(" "),
             args,
@@ -131,6 +133,10 @@ function App() {
         <Route path="/book/:id/metadata" element={<BookMetadataScreen />} />
         <Route path="/book/:id/read" element={<BookReadScreen />} />
         <Route path="/audiobook/:id" element={<AudiobookScreen />} />
+        <Route
+          path="/audiobook/:seriesId/:trackId/play"
+          element={<PlayAudiobookScreen />}
+        />
         <Route path="/manga/:id" element={<MangaScreen />} />
         <Route path="/manga/:id/metadata" element={<MangaMetadata />} />
         <Route path="/manga/:id/read" element={<MangaReadScreen />} />
@@ -143,6 +149,7 @@ function App() {
       </Routes>
       <DeepLinkHandler />
       <ImportHandler />
+      <PersistentAudioHandler />
       <ToastContainer />
     </BrowserRouter>
   );

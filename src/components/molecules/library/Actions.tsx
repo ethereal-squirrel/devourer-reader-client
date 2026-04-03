@@ -28,12 +28,12 @@ export default function Actions({
   const { roles } = useAuthStore(
     useShallow((state) => ({
       roles: state.roles,
-    }))
+    })),
   );
   const { libraryData } = useLibraryStore(
     useShallow((state) => ({
       libraryData: state.libraryData,
-    }))
+    })),
   ) as any;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -52,7 +52,7 @@ export default function Actions({
   return (
     <>
       <div className="flex flex-col md:flex-row items-center gap-2 mt-5">
-        <div className="flex flex-col md:flex-row items-center gap-2 w-full">
+        <div className="flex flex-row items-center gap-2 w-full">
           <button
             onClick={() => setActiveTab("files")}
             className={`w-full md:w-auto flex flex-row gap-2 ${
@@ -109,45 +109,47 @@ export default function Actions({
             </Button>
           )}
         </div>
-        <div className="w-full md:w-auto">
-          {roles.add_file && (
-            <Button
-              onPress={async () => {
-                setIsOpen(true);
-              }}
-              className="w-full md:w-[12rem]"
-              disabled={
-                scanStatus &&
+        <div className="w-full flex flex-col md:flex-row gap-2">
+          <div className="w-full md:w-auto">
+            {roles.add_file && (
+              <Button
+                onPress={async () => {
+                  setIsOpen(true);
+                }}
+                className="w-full md:w-[12rem]"
+                disabled={
+                  scanStatus &&
+                  scanStatus.remaining &&
+                  scanStatus.remaining.length > 0
+                }
+              >
+                {libraryData?.type === "book" ? "Upload book" : "Create series"}
+              </Button>
+            )}
+          </div>
+          <div className="w-full md:w-auto">
+            {roles.add_file && (
+              <Button
+                onPress={async () => {
+                  scanLibrary(libraryId);
+                  await new Promise((resolve) => setTimeout(resolve, 100));
+                  getScanStatus(libraryId);
+                }}
+                className="w-full md:w-[12rem]"
+                disabled={
+                  scanStatus &&
+                  scanStatus.remaining &&
+                  scanStatus.remaining.length > 0
+                }
+              >
+                {scanStatus &&
                 scanStatus.remaining &&
                 scanStatus.remaining.length > 0
-              }
-            >
-              {libraryData?.type === "book" ? "Upload book" : "Create series"}
-            </Button>
-          )}
-        </div>
-        <div className="w-full md:w-auto">
-          {roles.add_file && (
-            <Button
-              onPress={async () => {
-                scanLibrary(libraryId);
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                getScanStatus(libraryId);
-              }}
-              className="w-full md:w-[12rem]"
-              disabled={
-                scanStatus &&
-                scanStatus.remaining &&
-                scanStatus.remaining.length > 0
-              }
-            >
-              {scanStatus &&
-              scanStatus.remaining &&
-              scanStatus.remaining.length > 0
-                ? t("library.scanInProgress")
-                : t("library.scan")}
-            </Button>
-          )}
+                  ? t("library.scanInProgress")
+                  : t("library.scan")}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       {libraryData?.type === "manga" && roles.add_file && isOpen && (

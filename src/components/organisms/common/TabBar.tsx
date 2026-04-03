@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { useCommonStore } from "../../../store/common";
+import { MiniPlayer } from "./MiniPlayer";
 
 const TABS = [
   {
@@ -115,6 +116,7 @@ export const TabBar = React.memo(() => {
             }
       }
     >
+      <MiniPlayer />
       <div
         className="w-full grid grid-cols-3 gap-5 rounded-full bg-primary/80 p-3 inset-shadow-sm shadow-xl shadow-blue-200/10 backdrop-blur-xl ring-2 ring-white"
         role="tablist"

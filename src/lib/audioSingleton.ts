@@ -6,6 +6,7 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 let timeupdateHandler: (() => void) | null = null;
 let endedHandler: (() => void) | null = null;
 let loadedmetadataHandler: (() => void) | null = null;
+let currentPlaybackRate = 1;
 
 function clearListeners() {
   if (timeupdateHandler) {
@@ -45,6 +46,7 @@ export const audioSingleton = {
     };
     loadedmetadataHandler = () => {
       audio.currentTime = startSeconds;
+      audio.playbackRate = currentPlaybackRate;
       audio.play();
       loadedmetadataHandler = null;
     };
@@ -93,6 +95,15 @@ export const audioSingleton = {
         useAudioPlayerStore.getState().fireProgressCallback(audio.currentTime);
       }, 30000);
     }
+  },
+
+  setPlaybackRate(rate: number) {
+    currentPlaybackRate = rate;
+    audio.playbackRate = rate;
+  },
+
+  getPlaybackRate() {
+    return currentPlaybackRate;
   },
 
   getAudio() {

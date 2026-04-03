@@ -21,6 +21,9 @@ export interface Series {
   manga_data: any;
   server?: string;
   rating?: number;
+  userRating?: {
+    rating: number;
+  };
   tags?: string[];
 }
 
