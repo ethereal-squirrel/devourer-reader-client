@@ -35,6 +35,7 @@ const FileCard = memo(
     const [isAvailableOffline, setIsAvailableOffline] = useState(false);
 
     const imageRef = useRef<HTMLImageElement>(null);
+    const [imageError, setImageError] = useState(false);
 
     const { imagePath, isLoading } = useImageLoader({
       type: "file",
@@ -152,29 +153,35 @@ const FileCard = memo(
                 : ""
             }
           >
-            <img
-              ref={imageRef}
-              src={imagePath || ""}
-              alt={entity.file_name}
-              className="w-full h-full object-cover rounded-t-xl"
-              style={{
-                willChange: "auto",
-                opacity: "0.5",
-                transition: "opacity 0.2s ease-in-out",
-              }}
-              onLoad={(e) => {
-                const img = e.currentTarget;
-                img.style.opacity = "1";
-              }}
-              onError={(e) => {
-                const img = e.currentTarget;
-                if (imagePath && img.src !== imagePath) {
-                  setTimeout(() => {
-                    img.src = imagePath;
-                  }, 100);
-                }
-              }}
-            />
+            {imageError ? (
+              <div className="w-full h-[14rem] bg-gray-900 rounded-t-xl" />
+            ) : (
+              <img
+                ref={imageRef}
+                src={imagePath || ""}
+                alt={entity.file_name}
+                className="w-full h-full object-cover rounded-t-xl"
+                style={{
+                  willChange: "auto",
+                  opacity: "0.5",
+                  transition: "opacity 0.2s ease-in-out",
+                }}
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  img.style.opacity = "1";
+                }}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (imagePath && img.src !== imagePath) {
+                    setTimeout(() => {
+                      img.src = imagePath;
+                    }, 100);
+                  } else {
+                    setImageError(true);
+                  }
+                }}
+              />
+            )}
           </div>
           <button
             className="absolute top-1 left-1 bg-black/75 text-white p-2 rounded-full hover:cursor-pointer"
