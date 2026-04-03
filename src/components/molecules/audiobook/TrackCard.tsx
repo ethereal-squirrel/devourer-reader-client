@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { FolderArrowDownIcon, FolderPlusIcon } from "@heroicons/react/24/solid";
 
@@ -22,12 +22,10 @@ const TrackCard = memo(
     entity,
     offline,
     series,
-    onPlay,
   }: {
     entity: AudiobookTrack;
     offline?: boolean;
     series: AudiobookSeries;
-    onPlay: (track: AudiobookTrack, series: AudiobookSeries) => void;
   }) {
     const navigate = useNavigate();
     const { libraryData } = useLibraryStore(
@@ -192,8 +190,7 @@ const TrackCard = memo(
       prevProps.entity.is_listened === nextProps.entity.is_listened &&
       prevProps.entity.current_position_seconds ===
         nextProps.entity.current_position_seconds &&
-      prevProps.offline === nextProps.offline &&
-      prevProps.onPlay === nextProps.onPlay
+      prevProps.offline === nextProps.offline
     );
   },
 );

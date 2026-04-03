@@ -11,7 +11,6 @@ import { LoadingState } from "../components/organisms/common/LoadingState";
 import { TabBar } from "../components/organisms/common/TabBar";
 import { Container } from "../components/templates/Container";
 import { AudiobookSeries, AudiobookTrack, useAudiobook } from "../hooks/useAudiobook";
-import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useImageLoader } from "../hooks/useImageLoader";
 import { useLibraryStore } from "../store/library";
 
@@ -31,7 +30,6 @@ export default function AudiobookScreen() {
   const isLocal = searchParams.get("isLocal") === "true";
   const localServer = searchParams.get("server");
   const { series, offlineAvailability, retrieveSeries, retrieveLocalSeries } = useAudiobook();
-  const { playTrack } = useAudioPlayer(isLocal, localServer);
   const { filesData, libraryId } = useLibraryStore(
     useShallow((state) => ({
       filesData: state.filesData,
@@ -167,7 +165,6 @@ export default function AudiobookScreen() {
                           entity={track}
                           offline={isLocal}
                           series={series}
-                          onPlay={playTrack}
                         />
                       ))}
                     </div>
